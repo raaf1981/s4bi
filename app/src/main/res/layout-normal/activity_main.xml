@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/zmianaindbtn"
+        android:layout_width="78dp"
+        android:layout_height="38dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/wymiartv"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="658dp"
+        android:layout_marginStart="525dp"
+        android:layout_weight="1"
+        android:layout_x="274dp"
+        android:layout_y="210dp"
+        android:onClick="testMet"
+        android:padding="2dp"
+        android:text="Zmiana indeksu"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toTopOf="@+id/pomiarlbl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/indextv" />
+
+    <TextView
+        android:id="@+id/pomiartv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/zmianaindbtn"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="104dp"
+        android:layout_marginTop="6dp"
+        android:layout_x="280dp"
+        android:layout_y="327dp"
+        android:background="@android:color/white"
+        android:paddingLeft="22dp"
+        android:paddingRight="22dp"
+        android:text="0.0"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/startprocbtn"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/editText1"
+        app:layout_constraintTop_toBottomOf="@+id/pomiarlbl" />
+
+    <TextView
+        android:id="@+id/wymiarlbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/indexlbl"
+        android:layout_marginBottom="13dp"
+        android:layout_marginEnd="472dp"
+        android:layout_marginStart="130dp"
+        android:layout_x="390dp"
+        android:layout_y="176dp"
+        android:text="Wymiar"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/wymiartv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/indexlbl"
+        app:layout_constraintTop_toBottomOf="@+id/tabLay" />
+
+    <TextView
+        android:id="@+id/wymiartv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/wymiarlbl"
+        android:layout_marginBottom="200dp"
+        android:layout_marginEnd="115dp"
+        android:layout_marginStart="24dp"
+        android:layout_x="413dp"
+        android:layout_y="202dp"
+        android:text="-"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tminustv"
+        app:layout_constraintStart_toEndOf="@+id/indextv"
+        app:layout_constraintTop_toBottomOf="@+id/wymiarlbl" />
+
+    <TextView
+        android:id="@+id/tpluslbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/wymiarlbl"
+        android:layout_marginBottom="158dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginTop="6dp"
+        android:layout_x="487dp"
+        android:layout_y="175dp"
+        android:text="T+"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/startprocbtn"
+        app:layout_constraintEnd_toStartOf="@+id/tminuslbl"
+        app:layout_constraintStart_toEndOf="@+id/wymiarlbl"
+        app:layout_constraintTop_toBottomOf="@+id/tabLay" />
+
+    <TextView
+        android:id="@+id/tplustv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tpluslbl"
+        android:layout_alignTop="@+id/wymiartv"
+        android:layout_x="492dp"
+        android:layout_y="202dp"
+        android:text="-"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:layout_editor_absoluteX="1045dp"
+        tools:layout_editor_absoluteY="423dp" />
+
+    <TextView
+        android:id="@+id/tminuslbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/wymiarlbl"
+        android:layout_marginBottom="19dp"
+        android:layout_marginEnd="212dp"
+        android:layout_marginStart="116dp"
+        android:layout_marginTop="8dp"
+        android:layout_x="557dp"
+        android:layout_y="176dp"
+        android:text="T-"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/tplustv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tpluslbl"
+        app:layout_constraintTop_toBottomOf="@+id/tabLay" />
+
+    <TextView
+        android:id="@+id/tminustv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tminuslbl"
+        android:layout_alignTop="@+id/wymiartv"
+        android:layout_x="560dp"
+        android:layout_y="201dp"
+        android:text="-"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:layout_editor_absoluteX="900dp"
+        tools:layout_editor_absoluteY="423dp" />
+
+    <TextView
+        android:id="@+id/pomiarlbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/zmianaindbtn"
+        android:layout_marginEnd="152dp"
+        android:layout_marginStart="525dp"
+        android:layout_marginTop="33dp"
+        android:layout_x="286dp"
+        android:layout_y="304dp"
+        android:text="Pomiar"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/pomiartv"
+        app:layout_constraintEnd_toStartOf="@+id/startprocbtn"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/zmianaindbtn" />
+
+    <TextView
+        android:id="@+id/indexlbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/pomiarlbl"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="528dp"
+        android:layout_marginTop="6dp"
+        android:layout_x="293dp"
+        android:layout_y="176dp"
+        android:text="Indeks"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/indextv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabLay"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <TextView
+        android:id="@+id/indextv"
+        android:layout_width="69dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/zmianaindbtn"
+        android:layout_below="@+id/wymiarlbl"
+        android:layout_marginEnd="108dp"
+        android:layout_marginStart="522dp"
+        android:layout_marginTop="8dp"
+        android:layout_x="278dp"
+        android:layout_y="195dp"
+        android:background="@android:color/white"
+        android:onClick="testMet"
+        android:text="-wybierz-"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/zmianaindbtn"
+        app:layout_constraintEnd_toStartOf="@+id/wymiartv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/indexlbl" />
+
+    <TextView
+        android:id="@+id/datatv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/wymiarlbl"
+        android:layout_x="387dp"
+        android:layout_y="63dp"
+        android:text="Data"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        tools:layout_editor_absoluteX="832dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <Button
+        android:id="@+id/stopprocbtn"
+        style="@style/buttonStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/pomiartv"
+        android:layout_alignEnd="@+id/tminustv"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="238dp"
+        android:layout_x="482dp"
+        android:layout_y="304dp"
+        android:onClick="stopclick"
+        android:text="STOP PROCES"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabLay"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/startprocbtn"
+        style="@style/buttonStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/pomiartv"
+        android:layout_alignStart="@+id/wymiarlbl"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="100dp"
+        android:layout_marginStart="540dp"
+        android:layout_marginTop="238dp"
+        android:layout_x="358dp"
+        android:layout_y="304dp"
+        android:text="START PROCES"
+        android:onClick="startclick"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/stopprocbtn"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabLay"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/test"
+        android:layout_width="29dp"
+        android:layout_height="5dp"
+        android:layout_above="@+id/editText1"
+        android:layout_alignParentStart="true"
+        android:layout_x="412dp"
+        android:layout_y="248dp"
+        android:text="TextView"
+        android:textColor="@android:color/white"
+        android:visibility="invisible"
+        tools:layout_editor_absoluteX="1202dp"
+        tools:layout_editor_absoluteY="423dp" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="1dp"
+        android:layout_height="26dp"
+        android:layout_alignBaseline="@+id/pomiartv"
+        android:layout_alignStart="@+id/pomiartv"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="508dp"
+        android:layout_x="278dp"
+        android:layout_y="326dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text=""
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ScrollView
+        android:id="@+id/sv1"
+        android:layout_width="310dp"
+        android:layout_height="84dp"
+        android:layout_x="277dp"
+        android:layout_y="83dp"
+        android:background="@android:color/white"
+        tools:layout_editor_absoluteX="28dp"
+        tools:layout_editor_absoluteY="207dp">
+
+        <TableLayout
+            android:id="@+id/tabLay"
+            android:layout_width="310dp"
+            android:layout_height="104dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:layout_x="460dp"
+            android:layout_y="35dp"
+            android:background="@android:color/white"
+            android:padding="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </TableLayout>
+    </ScrollView>
+
+    <TableLayout
+        android:id="@+id/tabLayH"
+        android:layout_width="310dp"
+        android:layout_height="wrap_content"
+        android:layout_x="277dp"
+        android:layout_y="52dp"
+        android:background="@android:color/white"
+        android:padding="5dp"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp">
+
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/tvpoz"
+        android:layout_width="26dp"
+        android:layout_height="wrap_content"
+        android:layout_x="537dp"
+        android:layout_y="273dp"
+        android:background="@android:color/white"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        tools:layout_editor_absoluteX="642dp"
+        tools:layout_editor_absoluteY="319dp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_x="363dp"
+        android:layout_y="273dp"
+        android:text="Wymagana ilość pomiarów:"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        tools:layout_editor_absoluteX="695dp"
+        tools:layout_editor_absoluteY="319dp" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_x="532dp"
+        android:layout_y="262dp"
+        android:text="Pozostało"
+        android:textColor="@android:color/white"
+        android:textSize="8sp"
+        tools:layout_editor_absoluteX="742dp"
+        tools:layout_editor_absoluteY="284dp" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="90dp"
+        android:layout_height="35dp"
+
+        android:layout_x="5dp"
+        android:layout_y="0dp"
+        android:src="@drawable/go_back_logo" />
+
+    <RelativeLayout
+        android:layout_width="84dp"
+        android:layout_height="wrap_content"
+        android:layout_x="97dp"
+        android:layout_y="0dp"
+        android:background="#33aacc">
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="104dp"
+            android:layout_height="27dp"
+            android:layout_x="145dp"
+            android:layout_y="4dp"
+            android:prompt="@string/list_prompt"
+            android:text="miejsce"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="130dp" />
+    </RelativeLayout>
+
+    <es.voghdev.pdfviewpager.library.PDFViewPager
+        android:id="@+id/pdfViewPager"
+        android:layout_width="245dp"
+        android:layout_height="302dp"
+        android:layout_x="10dp"
+        android:layout_y="70dp"
+        app:assetFileName="abc.pdf" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_x="272dp"
+        android:layout_y="10dp"
+        android:text="Czas do następnego pomiaru:  00:00:00"
+        android:textColor="@android:color/holo_red_light"
+        android:textSize="18sp"
+        tools:layout_editor_absoluteX="380dp"
+        tools:layout_editor_absoluteY="178dp" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_x="186dp"
+        android:layout_y="1dp"
+        android:text="Zalogowany:"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:layout_editor_absoluteX="359dp"
+        tools:layout_editor_absoluteY="5dp" />
+
+    <Button
+        android:id="@+id/button"
+        style="@style/buttonStop"
+        android:layout_width="68dp"
+        android:layout_height="28dp"
+        android:layout_x="185dp"
+        android:layout_y="35dp"
+        android:text="WYLOGUJ"
+        android:textSize="12sp"
+        tools:layout_editor_absoluteX="361dp"
+        tools:layout_editor_absoluteY="52dp" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_x="190dp"
+        android:layout_y="17dp"
+        android:text="----"
+        android:textColor="@android:color/white"
+        tools:layout_editor_absoluteX="103dp"
+        tools:layout_editor_absoluteY="35dp" />
+
+
+</AbsoluteLayout>

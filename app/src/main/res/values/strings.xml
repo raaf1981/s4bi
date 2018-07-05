@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Quality Control</string>
+    <string name="list_prompt">-wybierz-</string>
+
+    <string-array name="list_arrays">
+        <item>Piła 1</item>
+        <item>Piła 2</item>
+        <item>Piła 3</item>
+        <item>Piła 4</item>
+        <item>Piła 5</item>
+        <item>Piła 6</item>
+        <item>Piła 7</item>
+        <item>Obróbka 1</item>
+        <item>Obróbka 2</item>
+    </string-array>
+</resources>
