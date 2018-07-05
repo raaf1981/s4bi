@@ -480,7 +480,7 @@
         android:layout_y="3dp"
         android:text="----"
         android:textAlignment="center"
-        android:textColor="@android:color/white"
+        android:textColor="#ffff00"
         android:textSize="24dp"
         tools:layout_editor_absoluteX="237dp"
         tools:layout_editor_absoluteY="79dp" />

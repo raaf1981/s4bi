@@ -91,5 +91,34 @@ public class HttpHandler {
 
     }
 
+    public static int doPostLogin(String newIndex){
+        int response=-1;
+        try {
+
+            URL getEndpoint = new URL(urlConPostNewIndex);
+            HttpURLConnection myConnection = (HttpURLConnection) getEndpoint.openConnection();
+            String encoded = Base64.encodeToString(upbyte, flags);
+            myConnection.setDoOutput(true);
+
+            myConnection.setRequestProperty("Authorization", "Basic " + encoded);
+            //DataOutputStream os = new DataOutputStream(myConnection.getOutputStream());
+            //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+            myConnection.getOutputStream().write(newIndex.getBytes());
+            System.out.println("respone code = " + myConnection.getResponseCode());
+            System.out.println("connection string  = " + urlConPostNewIndex);
+            response = myConnection.getResponseCode();
+            return myConnection.getResponseCode();
+
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return response;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return response;
+        }
+
+    }
+
 
 }

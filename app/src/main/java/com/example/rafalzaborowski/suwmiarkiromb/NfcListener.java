@@ -21,8 +21,6 @@ public class NfcListener  extends AppCompatActivity {
         intSend.putExtra("nfcTag",substr);
         getApplicationContext().sendBroadcast(intSend);
         finish();
-
-
     }
 
 }

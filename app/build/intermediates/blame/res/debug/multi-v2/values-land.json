@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-land/values-land.xml",
+            "outputFile": "D:\\s4bi2\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-land\\values-land.xml",
             "map": [
                 {
-                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-25.4.0.aar/70c61ec7e12c227e376a37280c6679c6/res/values-land/values-land.xml",
+                    "source": "C:\\Users\\Raaf\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-25.4.0.aar\\717c3d594c726a2028b3b9d73795e2ab\\res\\values-land\\values-land.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/design-25.0.0.aar/e77f9820cef00a13068de39a77ae0af7/res/values-land/values-land.xml",
+                    "source": "C:\\Users\\Raaf\\.gradle\\caches\\transforms-1\\files-1.1\\design-25.0.0.aar\\708c84d87d6d5fb333cd3298514aed2b\\res\\values-land\\values-land.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
