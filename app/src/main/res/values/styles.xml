@@ -23,6 +23,19 @@
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
     </style>
+    <style name="buttonTryb" parent="@android:style/Widget.Button">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:shadowColor">#FF000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">-1</item>
+        <item name="android:shadowRadius">0.2</item>
+        <item name="android:textSize">16dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/button_tryb</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
     <style name="buttonStop" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">#FFFFFFFF</item>
@@ -48,6 +61,41 @@
         <item name="android:background">@drawable/button_wybor</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
+    </style>
+    <style name="AlertDialogCustom" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:textSize">26dp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/CustomAlertButtonN</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/CustomAlertButtonY</item>
+        <item name="android:icon">@android:drawable/ic_dialog_alert</item>
+    </style>
+    <style name="CustomAlertButtonY" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:textSize">30dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@android:color/holo_blue_bright</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_marginRight">5dp</item>
+    </style>
+    <style name="CustomAlertButtonN" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:textSize">30dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@android:color/holo_blue_bright</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_marginRight">50dp</item>
+    </style>
+
+    <style name="AlertDialogCustom2" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:textSize">26dp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/CustomAlertButton</item>
+        <item name="android:icon">@android:drawable/ic_dialog_alert</item>
+    </style>
+    <style name="CustomAlertButton" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:textSize">30dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@android:color/holo_blue_bright</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_marginRight">50dp</item>
     </style>
 
 </resources>

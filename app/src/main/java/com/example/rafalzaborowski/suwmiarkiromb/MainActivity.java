@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View.OnKeyListener;
 import android.view.View;
 import android.view.KeyEvent;
@@ -58,11 +59,13 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Main Activity";
+    private static final String MIEJSCE = "Pila";
     public static String[][] strOfInd;
     public static int choosenInd;
-    InputStreamReader indeksy;
+    InputStreamReader indeksy,odpowiedz;
     String readJsonString;
     JSONArray jArr;
+    JSONObject jObj;
     TableLayout tabLay1;
     Date currentDate;
     Date dataprocesu;
@@ -123,18 +126,24 @@ public class MainActivity extends AppCompatActivity {
                 if ((keyevent.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     if (!tvpozostal.getText().toString().equals("")) {
                         if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && !btnStart1.isClickable()) {
-                            pomiarAktualny = editText.getText().toString();
-                            textView2.setText(editText.getText());
-                            editText.setText("");
-                            checkMeasure();
-                            if (pomiarOk) {
-                                textView2.setTextColor(Color.parseColor("#55bb55"));
-                            } else {
-                                textView2.setTextColor(Color.RED);
-                            }
-                            newIndexPost = prepNewIndPost(textView2.getText().toString());
+                            try{
+                                pomiarAktualny = editText.getText().toString();
+                                Double.parseDouble(pomiarAktualny);
+                                textView2.setText(editText.getText());
+                                editText.setText("");
+                                checkMeasure();
+                                if (pomiarOk) {
+                                    textView2.setTextColor(Color.parseColor("#55bb55"));
+                                } else {
+                                    textView2.setTextColor(Color.RED);
+                                }
+                                newIndexPost = prepNewIndPost(textView2.getText().toString());
 
-                            zapiszWynik();
+                                zapiszWynik();
+                            }catch(NumberFormatException e){
+                                showDialogCust("Błąd", "Błędny pomiar");
+                            }
+
                             editText.requestFocus();
                         } else if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && btnStart1.isClickable()) {
                             showDialogCustYN("Rozpocząć proces pomiarów?", 3);
@@ -429,7 +438,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openPDF() throws IOException {
-
         pdfView = (ImageView) findViewById(R.id.image);
         File file = new File(targetPdf);
 
@@ -451,6 +459,7 @@ public class MainActivity extends AppCompatActivity {
 
         pdfRenderer.close();
         fileDescriptor.close();
+        pdfView.setPadding(0,0,0,0);
     }
 
     private void zapiszWynik() {
@@ -462,22 +471,26 @@ public class MainActivity extends AppCompatActivity {
         myView.setText(textAlert);
         myView.setTextSize(30);
         myView.setTextColor(Color.parseColor("#dddddd"));
-        myView.setPadding(10,5,10,5);
+        //myView.setPadding(10,5,10,5);
         Button btnStop = (Button) findViewById(R.id.stopprocbtn);
         TextView indtxt = (TextView) findViewById(R.id.indextv);
         Button indbtn = (Button) findViewById(R.id.zmianaindbtn);
         AlertDialog.Builder builder;
-        builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+        builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom2);
         builder.setTitle(title)
                 .setView(myView)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
+                dialog.dismiss();
+
+            }
                 })
 
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+
+
     }
 
     private void showDialogCustYN(String textAlert, final int action) {
@@ -485,7 +498,7 @@ public class MainActivity extends AppCompatActivity {
         myView.setText(textAlert);
         myView.setTextSize(30);
         myView.setTextColor(Color.parseColor("#dddddd"));
-        myView.setPadding(10,5,10,5);
+        //myView.setPadding(10,5,10,5);
         final TextView tvpozostal = (TextView) findViewById(R.id.tvpoz);
         final TextView textView2 = (TextView) findViewById(R.id.pomiartv);
         final EditText editText = (EditText) findViewById(R.id.editText1);
@@ -498,9 +511,10 @@ public class MainActivity extends AppCompatActivity {
         final TextView tplus = (TextView) findViewById(R.id.tplustv);
         final TextView tminus = (TextView) findViewById(R.id.tminustv);
         AlertDialog.Builder builder;
-        builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+        builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom);
         builder.setTitle("Uwaga")
                 .setView(myView)
+                .setCancelable(false)
                 .setPositiveButton("Tak", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (action == 1) {
@@ -521,18 +535,24 @@ public class MainActivity extends AppCompatActivity {
                             licznikPom2 = 1;
                         }else if (action == 3){
                             startclick(btnStart);
-                            pomiarAktualny = editText.getText().toString();
-                            textView2.setText(editText.getText());
-                            editText.setText("");
-                            checkMeasure();
-                            if (pomiarOk) {
-                                textView2.setTextColor(Color.parseColor("#55bb55"));
-                            } else {
-                                textView2.setTextColor(Color.RED);
-                            }
-                            newIndexPost = prepNewIndPost(textView2.getText().toString());
+                            try{
+                                pomiarAktualny = editText.getText().toString();
+                                Double.parseDouble(pomiarAktualny);
+                                textView2.setText(editText.getText());
+                                editText.setText("");
+                                checkMeasure();
+                                if (pomiarOk) {
+                                    textView2.setTextColor(Color.parseColor("#55bb55"));
+                                } else {
+                                    textView2.setTextColor(Color.RED);
+                                }
+                                newIndexPost = prepNewIndPost(textView2.getText().toString());
 
-                            zapiszWynik();
+                                zapiszWynik();
+                            }catch(NumberFormatException e){
+                                showDialogCust("Błąd", "Błędny pomiar");
+                            }
+
                             editText.requestFocus();
 
                         }else if(action == 4){
@@ -592,6 +612,57 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void zaloguj(String tagNfc) {
+        String logstr = "{\"member_login\":\""+tagNfc+"\",\"member_role\":\""+MIEJSCE+"\"}";
+        TextView tvLogged = (TextView) findViewById(R.id.textView6);
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                String stat="",mes="";
+                odpowiedz = HttpHandler.doPostLogin(logstr);
+                try {
+                    readJsonString = readFromStream(odpowiedz);
+                    System.out.println("printuję odpowiedz:  " + readJsonString);
+                    jObj = new JSONObject(readJsonString);
+                    //JSONArray jArr = jObj.getJSONArray("indeks");
+                    stat = jObj.getString("status");
+                    mes = jObj.getString("message");
+
+                    if(stat.equals("true") && mes.equals("Login OK")){
+                        runOnUiThread(new Runnable(){
+                            public void run() {
+                                tvLogged.setText(tagNfc);
+                                showDialogCust("Login","Zalogowałeś się jako "+tagNfc);
+                            }
+                        });
+                    }else if(stat.equals("false") && mes.equals("Rola nie znaleziona")){
+                        runOnUiThread(new Runnable(){
+                            public void run() {
+                                showDialogCust("Odmowa","Nie masz uprawnień do zalogowania się na tym urządzeniu");
+                            }
+                        });
+                    }else if(stat.equals("false") && mes.equals("User could not be found")){
+                        runOnUiThread(new Runnable(){
+                            public void run() {
+                                showDialogCust("Błąd","Użytkownik "+tagNfc+" nie istnieje w bazie");
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //System.out.println(indeksy.toString());
+            }
+        });
+    }
+
+    public void trybClick(View v){
+
+    }
+
     private BroadcastReceiver breceive = new BroadcastReceiver() {
         public static final String akcja1 = "akcja1";
         public static final String akcja2 = "akcja2";
@@ -608,9 +679,7 @@ public class MainActivity extends AppCompatActivity {
                     progressDialog.setMessage("Pobieranie obrazu...");
                     progressDialog.show();
                 } else if (intent.getAction().equals("akcja2")) {
-                    String str = intent.getStringExtra("chosenind");
                     Boolean outputFileB = intent.getBooleanExtra("outputFileB", false);
-                    //Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
                     try {
                         openPDF();
                     } catch (IOException e) {
@@ -619,7 +688,6 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         if (outputFileB) {
                             progressDialog.dismiss();
-                            //Toast.makeText(context, "Downloaded Successfully", Toast.LENGTH_SHORT).show();
                         } else {
 
                             new Handler().postDelayed(new Runnable() {
@@ -628,8 +696,6 @@ public class MainActivity extends AppCompatActivity {
 
                                 }
                             }, 3000);
-                            //Toast.makeText(context, "Problem z pobraniem obrazu", Toast.LENGTH_SHORT).show();
-
                             progressDialog.dismiss();
                             showDialogCust("Błąd", "Nie można pobrać obrazu");
 
@@ -645,8 +711,6 @@ public class MainActivity extends AppCompatActivity {
 
                             }
                         }, 3000);
-                        //Toast.makeText(context, "Problem z pobraniem obrazu", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Download Failed with Exception - " + e.getLocalizedMessage());
                         progressDialog.dismiss();
                         showDialogCust("Błąd", "Nie można pobrać obrazu");
 
@@ -688,7 +752,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else if (intent.getAction().equals("akcja6")) {
                     TextView tvLogged = (TextView) findViewById(R.id.textView6);
-                    tvLogged.setText(intent.getStringExtra("nfcTag"));
+                    //tvLogged.setText(intent.getStringExtra("nfcTag"));
+                    if(tvLogged.getText().toString().equals("----")){
+                        zaloguj(intent.getStringExtra("nfcTag"));
+                    }
                     //Toast.makeText(context, "NFC tag: "+intent.getStringExtra("nfcTag"), Toast.LENGTH_SHORT).show();
                 }
             }

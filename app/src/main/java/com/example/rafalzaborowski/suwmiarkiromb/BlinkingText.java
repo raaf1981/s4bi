@@ -16,7 +16,7 @@ public class BlinkingText{
     private class BlinkText extends AsyncTask {
         @Override
         protected Object doInBackground(Object[] objects) {
-            for (int i=0;i<10;i++){
+            for (int i=0;i<9;i++){
                 if(i%2 != 0){
                     try {
                         Thread.sleep(800);

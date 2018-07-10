@@ -189,8 +189,8 @@
         android:layout_marginEnd="152dp"
         android:layout_marginStart="525dp"
         android:layout_marginTop="33dp"
-        android:layout_x="587dp"
-        android:layout_y="614dp"
+        android:layout_x="589dp"
+        android:layout_y="630dp"
         android:text="Pomiar"
         android:textColor="@android:color/white"
         android:textSize="30dp"
@@ -233,7 +233,7 @@
         android:layout_alignStart="@+id/pomiartv"
         android:layout_marginBottom="4dp"
         android:layout_marginStart="508dp"
-        android:layout_x="559dp"
+        android:layout_x="560dp"
         android:layout_y="656dp"
         android:ems="10"
         android:inputType="textPersonName"
@@ -309,8 +309,8 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/editText1"
         android:layout_alignParentStart="true"
-        android:layout_x="611dp"
-        android:layout_y="567dp"
+        android:layout_x="948dp"
+        android:layout_y="471dp"
         android:text="TextView"
         android:textColor="@android:color/white"
         android:visibility="invisible"
@@ -510,6 +510,19 @@
         android:visibility="invisible"
         tools:layout_editor_absoluteX="513dp"
         tools:layout_editor_absoluteY="375dp" />
+
+    <Button
+        android:id="@+id/btntryb"
+        style="@style/buttonTryb"
+        android:layout_width="149dp"
+        android:layout_height="79dp"
+        android:layout_x="560dp"
+        android:layout_y="546dp"
+        android:text="TRYB POMIARU"
+        android:textSize="16dp"
+        android:onClick="trybClick"
+        tools:layout_editor_absoluteX="586dp"
+        tools:layout_editor_absoluteY="550dp" />
 
 
 </AbsoluteLayout>
