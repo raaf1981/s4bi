@@ -2,6 +2,7 @@ package com.example.rafalzaborowski.suwmiarkiromb;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.Service;
@@ -36,6 +37,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -76,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     CountDownTimer cdt;
     private String[] newRowMeasure;
-    private int licznikPom = 1;
-    private int liczProb = 1;
+    private int licznikPom = 1,trybKalibLicz = 0, trybKalibLiczPom = 0;
+    private int liczProb = 1,trybIndex,indexPrev;
     private int licznikPom2 = 1;
     private boolean pomiarOk, timerStart;
     private String[] headerRow = {"ID", "Godzina", "Indeks", "Wymiar", "T+", "T-", "Pomiar", "Punkt"};
@@ -85,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
     private String newIndexPost;
     private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2",};
     private ProgressDialog progressDialog;
+    CharSequence[] values = {"Zwykły","Krytyczny","Kosz","Awaryjny"};
+    AlertDialog alertDialog1;
+    private int trybPomiaru = -1;
+    boolean elemOk = true;
 
     @Override
     protected void onPause() {
@@ -122,43 +129,124 @@ public class MainActivity extends AppCompatActivity {
             Button btnStart1 = (Button) findViewById(R.id.startprocbtn);
 
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-                currentDate = new Date();
-                if ((keyevent.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    if (!tvpozostal.getText().toString().equals("")) {
-                        if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && !btnStart1.isClickable()) {
-                            try{
-                                pomiarAktualny = editText.getText().toString();
-                                Double.parseDouble(pomiarAktualny);
-                                textView2.setText(editText.getText());
-                                editText.setText("");
-                                checkMeasure();
-                                if (pomiarOk) {
-                                    textView2.setTextColor(Color.parseColor("#55bb55"));
+                int iloscPunktow = Integer.parseInt(strOfInd[choosenInd][6]);
+                switch (trybIndex) {
+                    case -1: //nieoznaczony
+                        break;
+                    case 0: //normalny
+                        currentDate = new Date();
+                        if ((keyevent.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                            if (!tvpozostal.getText().toString().equals("")) {
+                                if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && !btnStart1.isClickable()) {
+                                    try{
+                                        pomiarAktualny = editText.getText().toString();
+                                        Double.parseDouble(pomiarAktualny);
+                                        textView2.setText(editText.getText());
+                                        editText.setText("");
+                                        checkMeasure();
+                                        if (pomiarOk) {
+                                            textView2.setTextColor(Color.parseColor("#55bb55"));
+                                        } else {
+                                            textView2.setTextColor(Color.RED);
+                                        }
+                                        newIndexPost = prepNewIndPost(textView2.getText().toString());
+
+                                        zapiszWynik();
+                                    }catch(NumberFormatException e){
+                                        showDialogCust("Błąd", "Błędny pomiar");
+                                    }
+
+                                    editText.requestFocus();
+                                } else if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && btnStart1.isClickable()) {
+                                    showDialogCustYN("Rozpocząć proces?", 3);
                                 } else {
-                                    textView2.setTextColor(Color.RED);
+                                    showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary");
                                 }
-                                newIndexPost = prepNewIndPost(textView2.getText().toString());
-
-                                zapiszWynik();
-                            }catch(NumberFormatException e){
-                                showDialogCust("Błąd", "Błędny pomiar");
+                            } else {
+                                showDialogCust("Błąd", "Nie wybrano indeksu");
                             }
-
-                            editText.requestFocus();
-                        } else if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && btnStart1.isClickable()) {
-                            showDialogCustYN("Rozpocząć proces pomiarów?", 3);
-                        } else {
-                            showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary");
+                            return true;
                         }
-                    } else {
-                        showDialogCust("Błąd", "Nie wybrano indeksu");
-                    }
+                        break;
+                    case 1: //krytyczny
+                        try{
+                            pomiarAktualny = editText.getText().toString();
+                            Double.parseDouble(pomiarAktualny);
+                            textView2.setText(editText.getText());
+                            editText.setText("");
+                            checkMeasure();
+                            trybKalibLiczPom++;
+                            if (pomiarOk) {
+                                if(trybKalibLiczPom==iloscPunktow && elemOk){
+                                    trybKalibLiczPom = 0;
+                                    trybKalibLicz++;
+                                    if(trybKalibLicz==3){
+                                        trybKalibLicz = 0;
+                                        elemOk=true;
+                                        ustawTryb(0);
+                                        return true;
+                                        //break;
+                                    }
+                                }else if (trybKalibLiczPom==iloscPunktow && !elemOk){
+                                    trybKalibLiczPom = 0;
+                                }
+                                textView2.setTextColor(Color.parseColor("#55bb55"));
+                            } else {
+                                elemOk=false;
+                                textView2.setTextColor(Color.RED);
+                            }
+                            newIndexPost = prepNewIndPost(textView2.getText().toString());
+                            zapiszWynik();
+                        }catch(NumberFormatException e){
+                            showDialogCust("Błąd", "Błędny pomiar");
+                        }
+                        editText.requestFocus();
+                        break;
+                    case 2: //
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        try{
+                            pomiarAktualny = editText.getText().toString();
+                            Double.parseDouble(pomiarAktualny);
+                            textView2.setText(editText.getText());
+                            editText.setText("");
+                            checkMeasure();
+                            trybKalibLiczPom++;
+                            if (pomiarOk) {
+                                if(trybKalibLiczPom==iloscPunktow && elemOk){
+                                    trybKalibLiczPom = 0;
+                                    trybKalibLicz++;
+                                    if(trybKalibLicz==3){
+                                        trybKalibLicz = 0;
+                                        elemOk=true;
+                                        ustawTryb(0);
+                                        return true;
+                                        //break;
+                                    }
+                                }else if (trybKalibLiczPom==iloscPunktow && !elemOk){
+                                    trybKalibLiczPom = 0;
+                                }
+                                textView2.setTextColor(Color.parseColor("#55bb55"));
+                            } else {
+                                elemOk=false;
+                                textView2.setTextColor(Color.RED);
+                            }
+                            newIndexPost = prepNewIndPost(textView2.getText().toString());
+                            zapiszWynik();
+                        }catch(NumberFormatException e){
+                            showDialogCust("Błąd", "Błędny pomiar");
+                        }
 
-
-                    return true;
+                        editText.requestFocus();
+                        break;
+                    default:
+                        editText.requestFocus();
+                        break;
                 }
-                editText.requestFocus();
-                return false;
+
+             return false;
             }
 
         });
@@ -354,6 +442,10 @@ public class MainActivity extends AppCompatActivity {
         if (indtv.getText().equals("-wybierz-")) {
             customToast("Wybierz indeks");
         } else {
+            if(trybPomiaru!=4){
+                ustawTryb(4);
+            }
+
             textView5.setTextColor(Color.GREEN);
             textView8.setTextColor(Color.GREEN);
             indbtn.setEnabled(false);
@@ -363,13 +455,14 @@ public class MainActivity extends AppCompatActivity {
             btnStop.setClickable(true);
         }
 
-        cdt.cancel();
+        //cdt.cancel();
 
     }
 
     public void stopclick(View v) {
         TextView tvpozost = (TextView) findViewById(R.id.tvpoz);
         Button btnStop = (Button) findViewById(R.id.stopprocbtn);
+        Button btnStart = (Button) findViewById(R.id.startprocbtn);
         TextView indtxt = (TextView) findViewById(R.id.indextv);
         Button indbtn = (Button) findViewById(R.id.zmianaindbtn);
         final TextView wym = (TextView) findViewById(R.id.wymiartv);
@@ -379,20 +472,21 @@ public class MainActivity extends AppCompatActivity {
             if (Integer.parseInt(tvpozost.getText().toString()) > 0) {
                 showDialogCustYN("Nie wykonałeś wszystkich pomiarów\nPozostało " + tvpozost.getText().toString() + "\nCzy na pewno zakończyć proces?", 2);
             } else {
+                btnStart.setClickable(true);
                 indbtn.setEnabled(true);
                 tabLay1 = (TableLayout) findViewById(R.id.tabLay);
                 tabLay1.removeAllViews();
                 TextView textView2 = (TextView) findViewById(R.id.pomiartv);
                 textView2.setText("0.0");
-                wym.setText("-");
-                tplus.setText("-");
-                tminus.setText("-");
+                //wym.setText("-");
+                //tplus.setText("-");
+                //tminus.setText("-");
                 tvpozost.setText("");
                 textView2.setTextColor(Color.parseColor("#000000"));
                 licznikPom = 1;
                 liczProb = 1;
                 licznikPom2 = 1;
-                showDialogCust("Uwaga", "Zakończono pomiary dla indeksu " + indtxt);
+                showDialogCust("Uwaga", "Zakończono proces dla indeksu " + indtxt);
             }
         }else{
             customToast("Nie rozpoczęto jeszcze procesu");
@@ -401,6 +495,134 @@ public class MainActivity extends AppCompatActivity {
         //new BlinkingText(this);
     }
 
+    private void ustawTryb(int tryb){
+        TextView trybText = (TextView) findViewById(R.id.textView3);
+        TextView tvpozlicz = (TextView) findViewById(R.id.tvpoz);
+        TextView tvpoz = (TextView) findViewById(R.id.textView4);
+        switch (tryb) {
+            case -1: //nieustawiony
+                break;
+            case 0: //zwykły
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+
+                        break;
+                    default:
+                        break;
+                }
+                trybPomiaru = 0;
+                trybText.setText("Wymagana ilość pomiarów:");
+                tvpoz.setVisibility(View.VISIBLE);
+                tvpozlicz.setVisibility(View.VISIBLE);
+                break;
+            case 1: //krytyczny
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    default:
+                        break;
+                }
+                trybPomiaru = 1;
+                trybText.setText("Tryb pomiaru: KRYTYCZNY");
+                tvpoz.setVisibility(View.GONE);
+                tvpozlicz.setVisibility(View.GONE);
+                break;
+            case 2: //kosz
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    default:
+                        break;
+                }
+                trybPomiaru = 2;
+                trybText.setText("Tryb pomiaru: KOSZ");
+                tvpoz.setVisibility(View.GONE);
+                tvpozlicz.setVisibility(View.GONE);
+                break;
+            case 3: //awaryjny
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    default:
+                        break;
+                }
+                trybPomiaru = 3;
+                trybText.setText("Tryb pomiaru: AWARYJNY");
+                tvpoz.setVisibility(View.GONE);
+                tvpozlicz.setVisibility(View.GONE);
+                break;
+            case 4: //kalibracja
+                trybPomiaru = 4;
+                trybText.setText("Tryb pomiaru: KALIBRACJA");
+                tvpoz.setVisibility(View.GONE);
+                tvpozlicz.setVisibility(View.GONE);
+                break;
+            case 5: //interwencyjny
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    default:
+                        break;
+                }
+                trybPomiaru = 5;
+                trybText.setText("Tryb pomiaru: INTERWENCYJNY");
+                tvpoz.setVisibility(View.GONE);
+                tvpozlicz.setVisibility(View.GONE);
+                break;
+            default:
+                break;
+        }
+    }
 
     private void countDownProb() {
         TextView tvpr = (TextView) findViewById(R.id.tvpoz);
@@ -409,7 +631,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-
         super.onStart();
         registerReceiver(breceive, filter);
     }
@@ -660,7 +881,188 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void trybClick(View v){
+        indexPrev = -1;
+        final Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.tryb_dialog);
+        final RadioButton rb1 = (RadioButton) dialog.findViewById(R.id.rbnormalny);
+        final RadioButton rb2 = (RadioButton) dialog.findViewById(R.id.rbkryt);
+        final RadioButton rb3 = (RadioButton) dialog.findViewById(R.id.rbkosz);
+        final RadioButton rb4 = (RadioButton) dialog.findViewById(R.id.rbawaryjny);
+        final RadioGroup rg = (RadioGroup) dialog.findViewById(R.id.rgroup1);
+        Button btnok = (Button) dialog.findViewById(R.id.btnok);
+        Button btnanuluj = (Button) dialog.findViewById(R.id.btnanuluj);
+        TextView tvtryb = (TextView) findViewById(R.id.textView3);
+        String tvtrybtext = tvtryb.getText().toString();
+        if(tvtrybtext=="Wymagana ilość pomiarów:"){
+            rb1.setChecked(true);
+            indexPrev = 0;
+        }else if(tvtrybtext=="Tryb pomiaru: KRYTYCZNY"){
+            rb2.setChecked(true);
+            indexPrev = 1;
+        }else if(tvtrybtext=="Tryb pomiaru: KOSZ"){
+            rb3.setChecked(true);
+            indexPrev = 2;
+        }else if(tvtrybtext=="Tryb pomiaru: AWARYJNY"){
+            rb4.setChecked(true);
+            indexPrev = 3;
+        }else if(tvtrybtext=="Tryb pomiaru: KALIBRACJA"){
+            indexPrev = 4;
+        }else if(tvtrybtext=="Tryb pomiaru: INTERWENCYJNY"){
+            indexPrev = 5;
+        }
 
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                RadioButton radioButton =(RadioButton) radioGroup.findViewById(i);
+                trybIndex = radioGroup.indexOfChild(radioButton);
+                //System.out.println("klikniety index radio buttona:  " +  index);
+            }
+        });
+        dialog.show();
+
+        btnok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView tvtrybin = (TextView) findViewById(R.id.textView3);
+                TextView tvpoz = (TextView) findViewById(R.id.tvpoz);
+                TextView tvpozlicz = (TextView) findViewById(R.id.textView4);
+                switch (indexPrev) {
+                    case -1:
+                        showDialogCust("Błąd","Wystąpił nieznany błąd.");
+                        break;
+                    case 0:
+                        switch (trybIndex) {
+                            case -1:
+                                dialog.dismiss();
+                                break;
+                            case 0:
+                                dialog.dismiss();
+                                break;
+                            case 1:
+                                tvtrybin.setText("Tryb pomiaru: KRYTYCZNY");
+                                tvpoz.setVisibility(View.GONE);
+                                tvpozlicz.setVisibility(View.GONE);
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 1:
+                        switch (trybIndex) {
+                            case -1:
+                                dialog.dismiss();
+                                break;
+                            case 0:
+                                break;
+                            case 1:
+                                dialog.dismiss();
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 2:
+                        switch (trybIndex) {
+                            case -1:
+                                dialog.dismiss();
+                                break;
+                            case 0:
+                                break;
+                            case 1:
+                                break;
+                            case 2:
+                                dialog.dismiss();
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 3:
+                        switch (trybIndex) {
+                            case -1:
+                                dialog.dismiss();
+                                break;
+                            case 0:
+                                break;
+                            case 1:
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                dialog.dismiss();
+                                break;
+                            case 4:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 4:
+                        switch (trybIndex) {
+                            case -1:
+                                dialog.dismiss();
+                                break;
+                            case 0:
+                                break;
+                            case 1:
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 5:
+                        switch (trybIndex) {
+                            case -1:
+                                break;
+                            case 0:
+                                break;
+                            case 1:
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        btnanuluj.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
     }
 
     private BroadcastReceiver breceive = new BroadcastReceiver() {
