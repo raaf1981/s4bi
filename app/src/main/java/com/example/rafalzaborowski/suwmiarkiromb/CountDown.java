@@ -2,6 +2,7 @@ package com.example.rafalzaborowski.suwmiarkiromb;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.widget.TextView;
@@ -59,5 +60,8 @@ public class CountDown extends CountDownTimer {
     public void onFinish() {
         final TextView textView8 = (TextView) act.findViewById(R.id.textView8);
         textView8.setText("00:00:00");
+        Intent intent = new Intent("akcja7");
+        context.sendBroadcast(intent);
+
     }
 }

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="1000dp"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/textView10"
@@ -10,8 +10,8 @@
         android:layout_height="wrap_content"
         android:background="#333333"
         android:gravity="center"
-        android:paddingBottom="50dp"
-        android:paddingTop="50dp"
+        android:paddingBottom="20dp"
+        android:paddingTop="20dp"
         android:text="Wybierz tryb pomiaru"
         android:textColor="#f4efef"
         android:textSize="42dp" />

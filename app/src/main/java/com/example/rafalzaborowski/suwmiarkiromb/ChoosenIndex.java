@@ -64,14 +64,7 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
     }
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //WindowManager.LayoutParams p = getDialog().getWindow().getAttributes();
-        //p.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        //p.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
-        //p.x = 200;
-        //getDialog().getWindow().setAttributes(p);
-        //final SearchView sv = (SearchView) getActivity().findViewById(R.id.searchView1);
         indexes = new String[indIncome.length];
-
         indexesTMP = new String[indIncome.length];
         for (int i=0;i<indIncome.length;i++){
             indexesTMP[i] = indIncome[i][2];
@@ -130,9 +123,6 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
-
-                // Set an elevation value for popup window
-                // Call requires API level 21
                 mPopupWindow.setElevation(5.0f);
                 button1 = (Button) customView.findViewById(R.id.button1);
                 button2 = (Button) customView.findViewById(R.id.button2);
