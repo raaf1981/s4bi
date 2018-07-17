@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-port/values-port.xml",
+            "outputFile": "D:\\s4bi2\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-port\\values-port.xml",
             "map": [
                 {
-                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-25.4.0.aar/70c61ec7e12c227e376a37280c6679c6/res/values-port/values-port.xml",
+                    "source": "C:\\Users\\Raaf\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-25.4.0.aar\\e30201fd267da2b9bf8fab18fdd7ec37\\res\\values-port\\values-port.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
