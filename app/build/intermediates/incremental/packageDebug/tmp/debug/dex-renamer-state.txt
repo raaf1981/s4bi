@@ -1,4 +1,4 @@
-#Fri Jul 13 23:47:33 CEST 2018
-base.0=D\:\\s4bi2\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
+#Tue Jul 17 14:30:59 CEST 2018
+base.0=/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/transforms/dexMerger/debug/0
 path.0=classes.dex
 renamed.0=classes.dex

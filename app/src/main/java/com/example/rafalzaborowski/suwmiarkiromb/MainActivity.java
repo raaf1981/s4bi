@@ -55,6 +55,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
@@ -90,11 +91,14 @@ public class MainActivity extends AppCompatActivity {
     private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT"};
     private String pomiarAktualny;
     private String newIndexPost;
-    private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2",};
+    private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2","Obróbka 3"};
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
     private int trybPomiaru = -1;
-    boolean elemOk = true;
+    private boolean elemOk = true,started=false, firstmeasure=true, lastmeasure=false;
+    public static boolean indexchoosen=false;
+    FileNotFoundException exception1=null;
+
 
     @Override
     protected void onPause() {
@@ -121,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction("akcja5");
         filter.addAction("akcja6");
         filter.addAction("akcja7");
+        filter.addAction("akcja8");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
@@ -144,6 +149,12 @@ public class MainActivity extends AppCompatActivity {
                     currentDate = new Date();
                     switch (trybPomiaru) {
                         case -1: //nieoznaczony
+                            if(indexchoosen && !started){
+                                showDialogCustYN("Rozpocząć proces?", 3);
+                            }else if(){
+
+                            }
+
                             break;
                         case 0: //normalny
                             if (!tvpozostal.getText().toString().equals("")) {
@@ -162,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
                                                 elemOk = true;
                                                 if (trybNormalLicz == 2) {
                                                     trybNormalLicz = 0;
-
+                                                    showDialogCust("Uwaga!","Wykryto 2 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
+                                                    //ustawTryb(2);
                                                 }
                                             } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
                                                 trybNormalLiczPom = 0;
@@ -175,7 +187,8 @@ public class MainActivity extends AppCompatActivity {
                                                 elemOk = true;
                                                 if (trybNormalLicz == 2) {
                                                     trybNormalLicz = 0;
-
+                                                    showDialogCust("Uwaga!","Wykryto 2 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
+                                                    //ustawTryb(2);
                                                 }
                                             } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
                                                 trybNormalLiczPom = 0;
@@ -188,10 +201,7 @@ public class MainActivity extends AppCompatActivity {
                                     } catch (NumberFormatException e) {
                                         showDialogCust("Błąd", "Błędny pomiar");
                                     }
-
                                     editText.requestFocus();
-                                } else if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && btnStart1.isClickable()) {
-                                    showDialogCustYN("Rozpocząć proces?", 3);
                                 } else {
                                     showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary");
                                 }
@@ -256,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (trybKalibLiczPom == iloscPunktow && elemOk) {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
-                                        if (trybKalibLicz == 3) {
+                                        if (trybKalibLicz == 1) {
                                             trybKalibLicz = 0;
                                             elemOk = true;
                                             newIndexPost = prepNewIndPost(textView2.getText().toString());
@@ -295,8 +305,6 @@ public class MainActivity extends AppCompatActivity {
         editText.requestFocus();
 
         pobierzIndeksy();
-        Button btnStop = (Button) findViewById(R.id.stopprocbtn);
-        btnStop.setClickable(false);
         TableLayout table = (TableLayout) findViewById(R.id.tabLayH);
         TableRow rowHeader = new TableRow(this);
         for (int i = 0; i < headerRow.length; i++) {
@@ -316,7 +324,6 @@ public class MainActivity extends AppCompatActivity {
                 this, R.layout.spinner_item, lista
         );
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-
         spinner.setAdapter(spinnerArrayAdapter);
         spinner.setPrompt("Miejsce pomiaru");
         //spinner.setSelection(0);
@@ -563,9 +570,11 @@ public class MainActivity extends AppCompatActivity {
         Button indbtn = (Button) findViewById(R.id.zmianaindbtn);
         TextView textView8 = (TextView) findViewById(R.id.textView8);
         TextView textView5 = (TextView) findViewById(R.id.textView5);
-        if (indtv.getText().equals("-wybierz-")) {
+        if (!indexchoosen && !started) {
             customToast("Wybierz indeks");
-        } else {
+        }else if(indexchoosen && started){
+            customToast("Proces został już rozpoczęty");
+        }else {
             if (trybPomiaru != 4) {
                 ustawTryb(4);
             }
@@ -575,9 +584,7 @@ public class MainActivity extends AppCompatActivity {
             indbtn.setEnabled(false);
             licznikPomiarowTmp1 = 1;
             dataprocesu = new Date();
-            btnStart.setClickable(false);
-            btnStop.setClickable(true);
-            btnTryb.setClickable(true);
+            started=true;
         }
 
         //cdt.cancel();
@@ -757,7 +764,13 @@ public class MainActivity extends AppCompatActivity {
     private void countDownProb() {
         if (trybPomiaru == 0) {
             TextView tvpr = (TextView) findViewById(R.id.tvpoz);
-            tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10) - liczProb));
+            int currentcd = Integer.parseInt(tvpr.getText().toString());
+
+            if ((currentcd-1)==0){
+                koniecpomiarow();
+            }else{
+                tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10) - liczProb));
+            }
         }
     }
 
@@ -795,24 +808,25 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(targetPdf);
 
         ParcelFileDescriptor fileDescriptor = null;
-        fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+            fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+            PdfRenderer pdfRenderer = null;
+            pdfRenderer = new PdfRenderer(fileDescriptor);
 
-        PdfRenderer pdfRenderer = null;
-        pdfRenderer = new PdfRenderer(fileDescriptor);
+            PdfRenderer.Page rendererPage = pdfRenderer.openPage(0);
+            int rendererPageWidth = rendererPage.getWidth();
+            int rendererPageHeight = rendererPage.getHeight();
+            Bitmap bitmap = Bitmap.createBitmap(rendererPageWidth, rendererPageHeight, Bitmap.Config.ARGB_8888);
+            rendererPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
-        PdfRenderer.Page rendererPage = pdfRenderer.openPage(0);
-        int rendererPageWidth = rendererPage.getWidth();
-        int rendererPageHeight = rendererPage.getHeight();
-        Bitmap bitmap = Bitmap.createBitmap(rendererPageWidth, rendererPageHeight, Bitmap.Config.ARGB_8888);
-        rendererPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            pdfView.setImageBitmap(bitmap);
+            mAttacher = new PhotoViewAttacher(pdfView);
+            rendererPage.close();
 
-        pdfView.setImageBitmap(bitmap);
-        mAttacher = new PhotoViewAttacher(pdfView);
-        rendererPage.close();
+            pdfRenderer.close();
+            fileDescriptor.close();
+            pdfView.setPadding(0, 0, 0, 0);
 
-        pdfRenderer.close();
-        fileDescriptor.close();
-        pdfView.setPadding(0, 0, 0, 0);
+
     }
 
     private void zapiszWynik() {
@@ -1221,7 +1235,9 @@ public class MainActivity extends AppCompatActivity {
                     Boolean outputFileB = intent.getBooleanExtra("outputFileB", false);
                     try {
                         openPDF();
+
                     } catch (IOException e) {
+
                         e.printStackTrace();
                     }
                     try {
@@ -1236,7 +1252,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }, 3000);
                             progressDialog.dismiss();
-                            showDialogCust("Błąd", "Nie można pobrać obrazu");
+
+                            //showDialogCust("Błąd", "Nie można pobrać obrazu");
 
                         }
                     } catch (Exception e) {
@@ -1251,7 +1268,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }, 3000);
                         progressDialog.dismiss();
-                        showDialogCust("Błąd", "Nie można pobrać obrazu");
+                            //showDialogCust("Błąd", "Nie można pobrać obrazu");
 
 
                     }
@@ -1259,6 +1276,7 @@ public class MainActivity extends AppCompatActivity {
                     //Toast.makeText(context, "testowanie", Toast.LENGTH_SHORT).show();
                     System.out.println("broadcast dziala akcja 3");
                     progressDialog = new ProgressDialog(context);
+                    progressDialog.setCancelable(false);
                     progressDialog.setMessage("Zapisywanie pomiaru...");
                     progressDialog.show();
 
@@ -1272,7 +1290,6 @@ public class MainActivity extends AppCompatActivity {
                         addTabRow(newRowMeasure);
                         countDownProb();
                         editTextMain.requestFocus();
-                        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(editTextMain.getWindowToken(), 0);
                         svx.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -1306,6 +1323,12 @@ public class MainActivity extends AppCompatActivity {
                     //Toast.makeText(context, "NFC tag: "+intent.getStringExtra("nfcTag"), Toast.LENGTH_SHORT).show();
                 } else if (intent.getAction().equals("akcja7")) {
                     blinkingAlert();
+                }else if (intent.getAction().equals("akcja8")) {
+                    if(intent.getIntExtra("errortype",1)==0){
+                        showDialogCust("Błąd!","Nie można zapisać obrazu.\nSprawdź uprawnienia aplikacji w ustawieniach systemu.");
+                    }else if(intent.getIntExtra("errortype",1)==1){
+                        showDialogCust("Błąd!","Nie można pobrać obrazu.\nSprawdź połączenie sieciowe");
+                    }
                 }
             }
         }
@@ -1334,5 +1357,9 @@ public class MainActivity extends AppCompatActivity {
             tvblink.setVisibility(View.GONE);
         }
         return super.onTouchEvent(event);
+    }
+
+    private void koniecpomiarow(){
+
     }
 }

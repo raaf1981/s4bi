@@ -121,7 +121,15 @@ public class DownloadTask {
                 is.close();
 
             } catch (Exception e) {
-
+                if (e.toString().contains("Permission denied")){
+                    Intent i = new Intent("akcja8");
+                    i.putExtra("errortype",0);
+                    context.sendBroadcast(i);
+                }else if (e.toString().contains("Unable to resolve host")) {
+                    Intent i = new Intent("akcja8");
+                    i.putExtra("errortype", 1);
+                    context.sendBroadcast(i);
+                }
                 //Read exception if something went wrong
                 e.printStackTrace();
                 outputFile = null;

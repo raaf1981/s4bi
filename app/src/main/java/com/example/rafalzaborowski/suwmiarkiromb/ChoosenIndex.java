@@ -295,6 +295,7 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
             tvtolm.setText(indIncome[choosenInd][5]);
         }
         MainActivity.choosenInd=choosenInd;
+        MainActivity.indexchoosen=true;
         EditText editText = (EditText) getActivity().findViewById(R.id.editText1);
         editText.requestFocus();
         TextView tvpoz = (TextView) getActivity().findViewById(R.id.tvpoz);

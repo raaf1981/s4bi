@@ -24,7 +24,7 @@ public class CountDown extends CountDownTimer {
         final TextView textView5 = (TextView) act.findViewById(R.id.textView5);
         long seconds = millisUntilFinished / 1000;
         long minutes = seconds / 60;
-        if (seconds > 59) {
+        if (seconds > 120) {
             textView5.setTextColor(Color.GREEN);
             textView8.setTextColor(Color.GREEN);
             if (minutes < 10) {
@@ -43,7 +43,7 @@ public class CountDown extends CountDownTimer {
             }
 
         } else {
-            if (seconds < 10) {
+            if (seconds > 60) {
                 textView5.setTextColor(Color.RED);
                 textView8.setTextColor(Color.RED);
                 textView8.setText("00:00:0" + String.valueOf(seconds));
