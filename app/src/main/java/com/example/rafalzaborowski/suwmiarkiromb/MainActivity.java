@@ -88,16 +88,17 @@ public class MainActivity extends AppCompatActivity {
     private int licznikPomiarowTmp1 = 1;
     private boolean pomiarOk, timerStart;
     private String[] headerRow = {"ID", "Godzina", "Indeks", "Wymiar", "T+", "T-", "Pomiar", "Punkt", "Tryb"};
-    private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT"};
+    private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT","KNT"};
     private String pomiarAktualny;
     private String newIndexPost;
     private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2","Obróbka 3"};
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
-    private int trybPomiaru = -1;
-    private boolean elemOk = true,started=false, firstmeasure=true, lastmeasure=false;
+    private int trybPomiaru = -1,savedTryb = -1;
+    private boolean elemOk = true,started=false, firstmeasure=true, lastmeasure=false,logged=false,kalibEnd=false;
     public static boolean indexchoosen=false;
     FileNotFoundException exception1=null;
+    public static long millis=-1;
 
 
     @Override
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
             Button btnStart1 = (Button) findViewById(R.id.startprocbtn);
 
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-
+                //if()
                 if ((keyevent.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     TextView tvblink = (TextView) findViewById(R.id.textView9);
                     if (tvblink.getVisibility() == View.VISIBLE) {
@@ -149,16 +150,10 @@ public class MainActivity extends AppCompatActivity {
                     currentDate = new Date();
                     switch (trybPomiaru) {
                         case -1: //nieoznaczony
-                            if(indexchoosen && !started){
-                                showDialogCustYN("Rozpocząć proces?", 3);
-                            }else if(){
-
-                            }
-
-                            break;
+                             break;
                         case 0: //normalny
                             if (!tvpozostal.getText().toString().equals("")) {
-                                if (Integer.parseInt(tvpozostal.getText().toString()) > 0 && !btnStart1.isClickable()) {
+                                if (Integer.parseInt(tvpozostal.getText().toString()) > 0) {
                                     try {
                                         pomiarAktualny = editText.getText().toString();
                                         Double.parseDouble(pomiarAktualny);
@@ -204,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                                     editText.requestFocus();
                                 } else {
                                     showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary");
+                                    editText.setText("");
                                 }
                             } else {
                                 showDialogCust("Błąd", "Nie wybrano indeksu");
@@ -267,11 +263,12 @@ public class MainActivity extends AppCompatActivity {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
                                         if (trybKalibLicz == 1) {
+                                            kalibEnd=true;
                                             trybKalibLicz = 0;
                                             elemOk = true;
                                             newIndexPost = prepNewIndPost(textView2.getText().toString());
                                             zapiszWynik();
-                                            ustawTryb(0);
+
                                             return true;
                                             //break;
                                         }
@@ -291,6 +288,23 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             editText.requestFocus();
+                            break;
+                        case 5:
+                            break;
+                        case 6:
+                            pomiarAktualny = editText.getText().toString();
+                            Double.parseDouble(pomiarAktualny);
+                            textView2.setText(editText.getText());
+                            editText.setText("");
+                            checkMeasure();
+                            if (pomiarOk) {
+                                textView2.setTextColor(Color.parseColor("#55bb55"));
+                            }else{
+                                textView2.setTextColor(Color.RED);
+
+                            }
+                            newIndexPost = prepNewIndPost(textView2.getText().toString());
+                            zapiszWynik();
                             break;
                         default:
                             editText.requestFocus();
@@ -557,7 +571,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String prepNewIndPost(String pomiarAkt) {
         TextView tvloggedp = (TextView) findViewById(R.id.textView6);
-        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmp1) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\"Piła1\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\"}";
+        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmp1) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\"Piła1\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\",\"tryb\":\""+trybPomiaru+"\"}";
         return postStr;
     }
 
@@ -631,6 +645,8 @@ public class MainActivity extends AppCompatActivity {
         TextView trybText = (TextView) findViewById(R.id.textView3);
         TextView tvpozlicz = (TextView) findViewById(R.id.tvpoz);
         TextView tvpoz = (TextView) findViewById(R.id.textView4);
+        Button btnCtrl = (Button) findViewById(R.id.btnControl);
+
         switch (tryb) {
             case -1: //nieustawiony
                 break;
@@ -651,6 +667,15 @@ public class MainActivity extends AppCompatActivity {
                     case 4:
                         liczProb = 1;
                         showDialogCust("Uwaga", "Kalibracja zakończona poprawnie\nSystem w trybie normalnym");
+                        cdt.start();
+                        break;
+                    case 5:
+                        break;
+                    case 6:
+                        trybText.clearAnimation();
+                        trybText.setTextColor(Color.WHITE);
+                        btnCtrl.setVisibility(View.GONE);
+                        cdt = new CountDown(millis, 1000, this);
                         cdt.start();
                         break;
                     default:
@@ -733,6 +758,7 @@ public class MainActivity extends AppCompatActivity {
                 trybText.setText("Tryb pomiaru: KALIBRACJA");
                 tvpoz.setVisibility(View.GONE);
                 tvpozlicz.setVisibility(View.GONE);
+                kalibEnd=false;
                 break;
             case 5: //interwencyjny
                 switch (trybPomiaru) {
@@ -755,6 +781,27 @@ public class MainActivity extends AppCompatActivity {
                 trybText.setText("Tryb pomiaru: INTERWENCYJNY");
                 tvpoz.setVisibility(View.GONE);
                 tvpozlicz.setVisibility(View.GONE);
+                break;
+            case 6: //kontrola
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        cdt.cancel();
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    default:
+                        break;
+                }
+                trybPomiaru = 6;
+                blinkingControl();
                 break;
             default:
                 break;
@@ -900,6 +947,7 @@ public class MainActivity extends AppCompatActivity {
                             licznikPomiarowGlowny = 1;
                             liczProb = 1;
                             licznikPomiarowTmp1 = 1;
+                            started=false;
                         } else if (action == 3) {
                             startclick(btnStart);
                             try {
@@ -924,6 +972,13 @@ public class MainActivity extends AppCompatActivity {
 
                         } else if (action == 4) {
                             tvloggedp.setText("----");
+                            logged = false;
+                        }else if (action == 5) {
+                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"),textAlert.indexOf("KNT")+6));
+                        }else if (action == 6) {
+                            tvloggedp.setText("----");
+                            ustawTryb(savedTryb);
+                            logged = false;
                         }
                     }
                 })
@@ -973,7 +1028,13 @@ public class MainActivity extends AppCompatActivity {
     public void wyloguj(View v) {
         TextView tvloggedp = (TextView) findViewById(R.id.textView6);
         if (!tvloggedp.getText().toString().equals("----")) {
-            showDialogCustYN("Czy wylogować użytkownika " + tvloggedp.getText().toString() + "?", 4);
+            if(tvloggedp.getText().toString().contains("KNT")){
+                showDialogCustYN("Zakończyć kontrolę i wylogować " + tvloggedp.getText().toString() + "?", 6);
+
+            }else {
+                showDialogCustYN("Czy wylogować użytkownika " + tvloggedp.getText().toString() + "?", 4);
+
+            }
         } else {
             customToast("Nie jesteś zalogowany");
         }
@@ -998,8 +1059,25 @@ public class MainActivity extends AppCompatActivity {
                     if (stat.equals("true") && mes.equals("Login OK")) {
                         runOnUiThread(new Runnable() {
                             public void run() {
-                                tvLogged.setText(tagNfc);
-                                showDialogCust("Login", "Zalogowałeś się jako " + tagNfc);
+
+
+                                if(tagNfc.contains("KNT")){
+                                    if(started) {
+                                        tvLogged.setText(tagNfc);
+                                        showDialogCust("Login", "Zalogowałeś się jako " + tagNfc + "\n         TRYB KONTROLI");
+                                        savedTryb=trybPomiaru;
+                                        ustawTryb(6);
+                                        logged=true;
+                                    }else{
+                                        showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.");
+                                    }
+                                }else{
+                                    tvLogged.setText(tagNfc);
+                                    showDialogCust("Login", "Zalogowałeś się jako " + tagNfc);
+                                    logged=true;
+                                }
+
+
                             }
                         });
                     } else if (stat.equals("false") && mes.equals("Rola nie znaleziona")) {
@@ -1289,6 +1367,9 @@ public class MainActivity extends AppCompatActivity {
                         newRowMeasure = prepareRow();
                         addTabRow(newRowMeasure);
                         countDownProb();
+                        if(kalibEnd){
+                            ustawTryb(0);
+                        }
                         editTextMain.requestFocus();
                         svx.postDelayed(new Runnable() {
                             @Override
@@ -1316,9 +1397,12 @@ public class MainActivity extends AppCompatActivity {
 
                 } else if (intent.getAction().equals("akcja6")) {
                     TextView tvLogged = (TextView) findViewById(R.id.textView6);
+                    String currentLog = tvLogged.getText().toString();
                     //tvLogged.setText(intent.getStringExtra("nfcTag"));
                     if (tvLogged.getText().toString().equals("----")) {
                         zaloguj(intent.getStringExtra("nfcTag"));
+                    }else if(!currentLog.equals("----") && !currentLog.contains("KNT")){
+                        showDialogCustYN("Obecnie zlogowany jest: "+currentLog+"\nPrzelogować na: "+intent.getStringExtra("nfcTag")+"?",5);
                     }
                     //Toast.makeText(context, "NFC tag: "+intent.getStringExtra("nfcTag"), Toast.LENGTH_SHORT).show();
                 } else if (intent.getAction().equals("akcja7")) {
@@ -1349,6 +1433,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void blinkingControl() {
+        TextView trybText = (TextView) findViewById(R.id.textView3);
+        TextView tvpozlicz = (TextView) findViewById(R.id.tvpoz);
+        TextView tvpoz = (TextView) findViewById(R.id.textView4);
+        Button btnCtrlEnd = (Button) findViewById(R.id.btnControl);
+        trybText.setText("TRYB KONTROLI");
+        trybText.setTextColor(Color.RED);
+        tvpozlicz.setVisibility(View.GONE);
+        tvpoz.setVisibility(View.GONE);
+        btnCtrlEnd.setVisibility(View.VISIBLE);
+        Animation anim = new AlphaAnimation(0.1f, 1.0f);
+        anim.setDuration(900); //You can manage the time of the blink with this parameter
+        anim.setStartOffset(20);
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(Animation.INFINITE);
+        trybText.setVisibility(View.VISIBLE);
+        trybText.startAnimation(anim);
+
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         TextView tvblink = (TextView) findViewById(R.id.textView9);
@@ -1360,6 +1464,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void koniecpomiarow(){
-
+        cdt = new CountDown(900000, 1000, this);
+        cdt.start();
     }
+
 }

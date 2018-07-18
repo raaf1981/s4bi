@@ -22,6 +22,7 @@ public class CountDown extends CountDownTimer {
     public void onTick(long millisUntilFinished) {
         final TextView textView8 = (TextView) act.findViewById(R.id.textView8);
         final TextView textView5 = (TextView) act.findViewById(R.id.textView5);
+        MainActivity.millis=millisUntilFinished;
         long seconds = millisUntilFinished / 1000;
         long minutes = seconds / 60;
         if (seconds > 120) {

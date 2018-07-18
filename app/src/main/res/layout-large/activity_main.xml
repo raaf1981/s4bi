@@ -420,7 +420,7 @@
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="81dp"
+        android:layout_width="98dp"
         android:layout_height="wrap_content"
         android:layout_x="448dp"
         android:layout_y="4dp"
@@ -537,6 +537,20 @@
         android:visibility="invisible"
         tools:layout_editor_absoluteX="586dp"
         tools:layout_editor_absoluteY="550dp" />
+
+    <Button
+        android:id="@+id/btnControl"
+        android:layout_width="104dp"
+        android:layout_height="60dp"
+        android:layout_x="1053dp"
+        android:layout_y="519dp"
+        android:background="@android:color/holo_red_light"
+        android:onClick="wyloguj"
+        android:text="ZAKOŃCZ\nKONTROLĘ"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        tools:layout_editor_absoluteX="1164dp"
+        tools:layout_editor_absoluteY="514dp" />
 
 
 </AbsoluteLayout>
