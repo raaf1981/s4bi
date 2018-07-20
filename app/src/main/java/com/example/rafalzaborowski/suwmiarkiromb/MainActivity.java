@@ -83,23 +83,27 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     CountDownTimer cdt;
     private String[] newRowMeasure;
-    private int licznikPomiarowGlowny = 1, trybKalibLicz = 0, trybKalibLiczPom = 0,trybNormalLicz = 0,trybNormalLiczPom = 0;
+    private int licznikPomiarowGlowny = 1, trybKalibLicz = 0, trybKalibLiczPom = 0, trybNormalLicz = 0, trybNormalLiczPom = 0, liczSesja = 0, liczProbKalib = 1, liczProbKont = 1;
     private int liczProb = 1, indexPrev;
-    private int licznikPomiarowTmp1 = 1;
+    private int licznikPomiarowTmp1 = 1, licznikPomiarowTmp1Kal = 1, licznikPomiarowTmp1Kont = 1;
     private boolean pomiarOk, timerStart;
     private String[] headerRow = {"ID", "Godzina", "Indeks", "Wymiar", "T+", "T-", "Pomiar", "Punkt", "Tryb"};
-    private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT","KNT"};
+    private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT", "KNT"};
     private String pomiarAktualny;
     private String newIndexPost;
-    private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2","Obróbka 3"};
+    private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2", "Obróbka 3"};
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
-    private int trybPomiaru = -1,savedTryb = -1;
-    private boolean elemOk = true,started=false, firstmeasure=true, lastmeasure=false,logged=false,kalibEnd=false;
-    public static boolean indexchoosen=false;
-    FileNotFoundException exception1=null;
-    public static long millis=-1;
+    private int trybPomiaru = -1, savedTryb = -1;
+    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = false, kalibEnd = false;
+    public static boolean indexchoosen = false, stopProc = false;
+    FileNotFoundException exception1 = null;
+    public static long millis = -1;
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+    }
 
     @Override
     protected void onPause() {
@@ -139,176 +143,203 @@ public class MainActivity extends AppCompatActivity {
             Button btnStart1 = (Button) findViewById(R.id.startprocbtn);
 
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
-                //if()
-                if ((keyevent.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    TextView tvblink = (TextView) findViewById(R.id.textView9);
-                    if (tvblink.getVisibility() == View.VISIBLE) {
-                        tvblink.clearAnimation();
-                        tvblink.setVisibility(View.GONE);
-                    }
-                    int iloscPunktow = Integer.parseInt(strOfInd[choosenInd][6]);
-                    currentDate = new Date();
-                    switch (trybPomiaru) {
-                        case -1: //nieoznaczony
-                             break;
-                        case 0: //normalny
-                            if (!tvpozostal.getText().toString().equals("")) {
-                                if (Integer.parseInt(tvpozostal.getText().toString()) > 0) {
-                                    try {
-                                        pomiarAktualny = editText.getText().toString();
-                                        Double.parseDouble(pomiarAktualny);
-                                        textView2.setText(editText.getText());
-                                        editText.setText("");
-                                        checkMeasure();
-                                        trybNormalLiczPom++;
-                                        if (pomiarOk) {
-                                            if (trybNormalLiczPom == iloscPunktow && !elemOk) {
-                                                trybNormalLiczPom = 0;
-                                                trybNormalLicz++;
-                                                elemOk = true;
-                                                if (trybNormalLicz == 2) {
-                                                    trybNormalLicz = 0;
-                                                    showDialogCust("Uwaga!","Wykryto 2 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
-                                                    //ustawTryb(2);
-                                                }
-                                            } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
-                                                trybNormalLiczPom = 0;
-                                            }
-                                            textView2.setTextColor(Color.parseColor("#55bb55"));
-                                        } else {
-                                            if (trybNormalLiczPom == iloscPunktow && !elemOk) {
-                                                trybNormalLiczPom = 0;
-                                                trybNormalLicz++;
-                                                elemOk = true;
-                                                if (trybNormalLicz == 2) {
-                                                    trybNormalLicz = 0;
-                                                    showDialogCust("Uwaga!","Wykryto 2 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
-                                                    //ustawTryb(2);
-                                                }
-                                            } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
-                                                trybNormalLiczPom = 0;
-                                            }
-                                            elemOk = false;
-                                            textView2.setTextColor(Color.RED);
-                                        }
-                                        newIndexPost = prepNewIndPost(textView2.getText().toString());
-                                        zapiszWynik();
-                                    } catch (NumberFormatException e) {
-                                        showDialogCust("Błąd", "Błędny pomiar");
-                                    }
-                                    editText.requestFocus();
-                                } else {
-                                    showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary");
-                                    editText.setText("");
-                                }
-                            } else {
-                                showDialogCust("Błąd", "Nie wybrano indeksu");
-                            }
-                            return true;
 
-                        //break;
-                        case 1: //krytyczny
-                            boolean end = false;
-                            try {
-                                pomiarAktualny = editText.getText().toString();
-                                Double.parseDouble(pomiarAktualny);
-                                textView2.setText(editText.getText());
-                                editText.setText("");
-                                checkMeasure();
-                                trybKalibLiczPom++;
-                                if (pomiarOk) {
-                                    if (trybKalibLiczPom == iloscPunktow && elemOk) {
-                                        trybKalibLiczPom = 0;
-                                        trybKalibLicz++;
-                                        if (trybKalibLicz == 3) {
-                                            trybKalibLicz = 0;
-                                            elemOk = true;
-                                            end = true;
-                                        }
-                                    } else if (trybKalibLiczPom == iloscPunktow && !elemOk) {
-                                        trybKalibLiczPom = 0;
-                                    }
-                                    textView2.setTextColor(Color.parseColor("#55bb55"));
-                                } else {
-                                    elemOk = false;
-                                    textView2.setTextColor(Color.RED);
+                if ((keyevent.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    if (!logged && !indexchoosen && !started) {
+                        showDialogCust("Błąd", "Aby wykonać pomiary należy się zalogować,\nwybrać indeks i rozpocząć proces.");
+                        editText.setText("");
+                    } else if (logged && !indexchoosen && !started) {
+                        showDialogCust("Błąd", "Aby wykonać pomiary należy wybrać indeks\ni rozpocząć proces.");
+                        editText.setText("");
+                    } else if (logged && indexchoosen && !started) {
+                        showDialogCust("Błąd", "Aby wykonać pomiary należy rozpocząć proces\nnaciskając przycisk START PROCES.");
+                        editText.setText("");
+                    } else if (logged && !indexchoosen && !started) {
+                        showDialogCust("Błąd", "Aby wykonać pomiary należy się zalogować");
+                        editText.setText("");
+                    } else {
+                        TextView tvblink = (TextView) findViewById(R.id.textView9);
+                        if (tvblink.getVisibility() == View.VISIBLE) {
+                            tvblink.clearAnimation();
+                            tvblink.setVisibility(View.GONE);
+                        }
+                        int iloscPunktow = Integer.parseInt(strOfInd[choosenInd][6]);
+                        currentDate = new Date();
+                        switch (trybPomiaru) {
+                            case -1: //nieoznaczony
+                                showDialogCust("Błąd", "Rozpocznij proces naciskając przycisk START PROCES.");
+                                break;
+                            case 0: //normalny
+                                TextView tvpr = (TextView) findViewById(R.id.tvpoz);
+                                if(Integer.parseInt(tvpr.getText().toString())==((Integer.parseInt(strOfInd[choosenInd][6]) * 10))){
+                                    dataprocesu=new Date();
                                 }
-                                newIndexPost = prepNewIndPost(textView2.getText().toString());
-                                zapiszWynik();
-                                if (end) {
-                                    ustawTryb(0);
-                                }
-                            } catch (NumberFormatException e) {
-                                showDialogCust("Błąd", "Błędny pomiar");
-                            }
-                            editText.requestFocus();
-                            break;
-                        case 2: //
-                            break;
-                        case 3:
-                            break;
-                        case 4:
-                            try {
-                                pomiarAktualny = editText.getText().toString();
-                                Double.parseDouble(pomiarAktualny);
-                                textView2.setText(editText.getText());
-                                editText.setText("");
-                                checkMeasure();
-                                if (trybKalibLiczPom == 0) {
-                                    elemOk = true;
-                                }
-                                trybKalibLiczPom++;
-                                if (pomiarOk) {
-                                    if (trybKalibLiczPom == iloscPunktow && elemOk) {
-                                        trybKalibLiczPom = 0;
-                                        trybKalibLicz++;
-                                        if (trybKalibLicz == 1) {
-                                            kalibEnd=true;
-                                            trybKalibLicz = 0;
-                                            elemOk = true;
+                                if (!tvpozostal.getText().toString().equals("")) {
+                                    if (logged && started && millis > 0) {
+                                        showDialogCust("Uwaga", "Nie można wykonać pomiaru przed czasem.");
+                                        editText.setText("");
+                                    } else {
+                                        try {
+                                            pomiarAktualny = editText.getText().toString();
+                                            Double.parseDouble(pomiarAktualny);
+                                            textView2.setText(editText.getText());
+                                            editText.setText("");
+                                            checkMeasure();
+                                            trybNormalLiczPom++;
+                                            if (pomiarOk) {
+                                                if (trybNormalLiczPom == iloscPunktow && !elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                    trybNormalLicz++;
+                                                    elemOk = true;
+                                                    if (trybNormalLicz == 3) {
+                                                        trybNormalLicz = 0;
+                                                        showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
+                                                        stopProc = true;
+                                                        blinkingAlertStop();
+                                                        //ustawTryb(2);
+                                                    }
+                                                } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                }
+                                                textView2.setTextColor(Color.parseColor("#55bb55"));
+                                            } else {
+                                                if (trybNormalLiczPom == iloscPunktow && !elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                    trybNormalLicz++;
+                                                    elemOk = true;
+                                                    if (trybNormalLicz == 3) {
+                                                        trybNormalLicz = 0;
+                                                        showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
+                                                        stopProc = true;
+                                                        blinkingAlertStop();
+                                                        //ustawTryb(2);
+                                                    }
+                                                } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                }
+                                                elemOk = false;
+                                                textView2.setTextColor(Color.RED);
+                                            }
                                             newIndexPost = prepNewIndPost(textView2.getText().toString());
                                             zapiszWynik();
 
-                                            return true;
-                                            //break;
+
+                                        } catch (NumberFormatException e) {
+                                            showDialogCust("Błąd", "Błędny pomiar!");
                                         }
-                                    } else if (trybKalibLiczPom == iloscPunktow && !elemOk) {
-                                        trybKalibLiczPom = 0;
+                                        editText.requestFocus();
                                     }
+
+
+                                } else {
+                                    showDialogCust("Błąd", "Nie wybrano indeksu.");
+                                }
+                                return true;
+
+                            //break;
+                            case 1: //krytyczny
+                                boolean end = false;
+                                try {
+                                    pomiarAktualny = editText.getText().toString();
+                                    Double.parseDouble(pomiarAktualny);
+                                    textView2.setText(editText.getText());
+                                    editText.setText("");
+                                    checkMeasure();
+                                    trybKalibLiczPom++;
+                                    if (pomiarOk) {
+                                        if (trybKalibLiczPom == iloscPunktow && elemOk) {
+                                            trybKalibLiczPom = 0;
+                                            trybKalibLicz++;
+                                            if (trybKalibLicz == 3) {
+                                                trybKalibLicz = 0;
+                                                elemOk = true;
+                                                end = true;
+                                            }
+                                        } else if (trybKalibLiczPom == iloscPunktow && !elemOk) {
+                                            trybKalibLiczPom = 0;
+                                        }
+                                        textView2.setTextColor(Color.parseColor("#55bb55"));
+                                    } else {
+                                        elemOk = false;
+                                        textView2.setTextColor(Color.RED);
+                                    }
+                                    newIndexPost = prepNewIndPost(textView2.getText().toString());
+                                    zapiszWynik();
+                                    if (end) {
+                                        ustawTryb(0);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    showDialogCust("Błąd", "Błędny pomiar.");
+                                }
+                                editText.requestFocus();
+                                break;
+                            case 2: //
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                try {
+                                    pomiarAktualny = editText.getText().toString();
+                                    Double.parseDouble(pomiarAktualny);
+                                    textView2.setText(editText.getText());
+                                    editText.setText("");
+                                    checkMeasure();
+                                    if (trybKalibLiczPom == 0) {
+                                        elemOk = true;
+                                    }
+                                    trybKalibLiczPom++;
+                                    if (pomiarOk) {
+                                        if (trybKalibLiczPom == iloscPunktow && elemOk) {
+                                            trybKalibLiczPom = 0;
+                                            trybKalibLicz++;
+                                            if (trybKalibLicz == 2) {
+                                                kalibEnd = true;
+                                                trybKalibLicz = 0;
+                                                elemOk = true;
+                                                newIndexPost = prepNewIndPost(textView2.getText().toString());
+                                                zapiszWynik();
+
+                                                return true;
+                                                //break;
+                                            }
+                                        } else if (trybKalibLiczPom == iloscPunktow && !elemOk) {
+                                            trybKalibLiczPom = 0;
+                                        }
+                                        textView2.setTextColor(Color.parseColor("#55bb55"));
+                                    } else {
+                                        elemOk = false;
+                                        trybKalibLicz = 0;
+                                        textView2.setTextColor(Color.RED);
+                                    }
+                                    newIndexPost = prepNewIndPost(textView2.getText().toString());
+                                    zapiszWynik();
+                                } catch (NumberFormatException e) {
+                                    showDialogCust("Błąd", "Błędny pomiar");
+                                }
+
+                                editText.requestFocus();
+                                break;
+                            case 5:
+                                break;
+                            case 6:
+                                pomiarAktualny = editText.getText().toString();
+                                Double.parseDouble(pomiarAktualny);
+                                textView2.setText(editText.getText());
+                                editText.setText("");
+                                checkMeasure();
+                                if (pomiarOk) {
                                     textView2.setTextColor(Color.parseColor("#55bb55"));
                                 } else {
-                                    elemOk = false;
-                                    trybKalibLicz = 0;
                                     textView2.setTextColor(Color.RED);
+
                                 }
                                 newIndexPost = prepNewIndPost(textView2.getText().toString());
                                 zapiszWynik();
-                            } catch (NumberFormatException e) {
-                                showDialogCust("Błąd", "Błędny pomiar");
-                            }
-
-                            editText.requestFocus();
-                            break;
-                        case 5:
-                            break;
-                        case 6:
-                            pomiarAktualny = editText.getText().toString();
-                            Double.parseDouble(pomiarAktualny);
-                            textView2.setText(editText.getText());
-                            editText.setText("");
-                            checkMeasure();
-                            if (pomiarOk) {
-                                textView2.setTextColor(Color.parseColor("#55bb55"));
-                            }else{
-                                textView2.setTextColor(Color.RED);
-
-                            }
-                            newIndexPost = prepNewIndPost(textView2.getText().toString());
-                            zapiszWynik();
-                            break;
-                        default:
-                            editText.requestFocus();
-                            break;
+                                break;
+                            default:
+                                editText.requestFocus();
+                                break;
+                        }
                     }
                 }
 
@@ -345,12 +376,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void testMet(View v) {
-        TextView tvlogged = (TextView) findViewById(R.id.textView6);
         if (strOfInd == null) {
-            showDialogCust("Błąd", "Nie można pobrać bazy indeksów.\nWystąpił problem z komunikacją.\nSkontaktuj się z administratorem.");
             pobierzIndeksy();
+            showDialogCust("Błąd", "Nie można pobrać bazy indeksów.\nWystąpił problem z komunikacją.\nSkontaktuj się z administratorem.");
+
         } else {
-            if (tvlogged.getText().toString().equals("----")) {
+            if (!logged) {
                 showDialogCust("Błąd", "Zaloguj się!");
             } else {
                 DialogFragment newFragment = new ChoosenIndex();
@@ -517,18 +548,52 @@ public class MainActivity extends AppCompatActivity {
             newRowToAdd[5] = strOfInd[choosenInd][5];
         }
         newRowToAdd[6] = tvPom.getText().toString();
-        if (liczProb <= Integer.parseInt(strOfInd[choosenInd][6])) {
-            newRowToAdd[7] = String.valueOf(liczProb);
-            liczProb += 1;
-        } else {
-            liczProb = 1;
-            newRowToAdd[7] = String.valueOf(liczProb);
-            liczProb += 1;
+        if (trybPomiaru == 0) {
+            if (liczProb <= Integer.parseInt(strOfInd[choosenInd][6])) {
+                newRowToAdd[7] = String.valueOf(liczProb);
+                if (trybPomiaru == 0) {
+                    liczProb += 1;
+                }
+            } else {
+                liczProb = 1;
+                newRowToAdd[7] = String.valueOf(liczProb);
+                liczProb += 1;
+            }
+        } else if (trybPomiaru == 4) {
+            if (liczProbKalib <= Integer.parseInt(strOfInd[choosenInd][6])) {
+                newRowToAdd[7] = String.valueOf(liczProbKalib);
+                liczProbKalib += 1;
+
+            } else {
+                liczProbKalib = 1;
+                newRowToAdd[7] = String.valueOf(liczProbKalib);
+                liczProbKalib += 1;
+            }
+        } else if (trybPomiaru == 6) {
+            if (liczProbKont <= Integer.parseInt(strOfInd[choosenInd][6])) {
+                newRowToAdd[7] = String.valueOf(liczProbKont);
+                liczProbKont += 1;
+            } else {
+                liczProbKont = 1;
+                newRowToAdd[7] = String.valueOf(liczProbKont);
+                liczProbKont += 1;
+            }
         }
         newRowToAdd[8] = trybRow[trybPomiaru];
-        if (liczProb > Integer.parseInt(strOfInd[choosenInd][6])) {
-            licznikPomiarowTmp1 += 1;
+        if (trybPomiaru == 0) {
+            if (liczProb > Integer.parseInt(strOfInd[choosenInd][6])) {
+                licznikPomiarowTmp1 += 1;
+            }
+        } else if (trybPomiaru == 4) {
+            if (liczProbKalib > Integer.parseInt(strOfInd[choosenInd][6])) {
+                licznikPomiarowTmp1Kal += 1;
+            }
+        } else if (trybPomiaru == 6) {
+            if (liczProbKont > Integer.parseInt(strOfInd[choosenInd][6])) {
+                licznikPomiarowTmp1Kont += 1;
+            }
         }
+
         return newRowToAdd;
     }
 
@@ -571,7 +636,17 @@ public class MainActivity extends AppCompatActivity {
 
     private String prepNewIndPost(String pomiarAkt) {
         TextView tvloggedp = (TextView) findViewById(R.id.textView6);
-        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmp1) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\"Piła1\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\",\"tryb\":\""+trybPomiaru+"\"}";
+        String tp = String.valueOf(trybPomiaru);
+        int licznikPomiarowTmpX = 0;
+        if (trybPomiaru == 0) {
+            //tp = "00";
+            licznikPomiarowTmpX = licznikPomiarowTmp1;
+        } else if (trybPomiaru == 4) {
+            licznikPomiarowTmpX = licznikPomiarowTmp1Kal;
+        } else if (trybPomiaru == 6) {
+            licznikPomiarowTmpX = licznikPomiarowTmp1Kont;
+        }
+        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmpX) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\"Piła1\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\",\"tryb\":\"" + tp + "\"}";
         return postStr;
     }
 
@@ -586,9 +661,9 @@ public class MainActivity extends AppCompatActivity {
         TextView textView5 = (TextView) findViewById(R.id.textView5);
         if (!indexchoosen && !started) {
             customToast("Wybierz indeks");
-        }else if(indexchoosen && started){
+        } else if (indexchoosen && started) {
             customToast("Proces został już rozpoczęty");
-        }else {
+        } else {
             if (trybPomiaru != 4) {
                 ustawTryb(4);
             }
@@ -597,8 +672,10 @@ public class MainActivity extends AppCompatActivity {
             textView8.setTextColor(Color.GREEN);
             indbtn.setEnabled(false);
             licznikPomiarowTmp1 = 1;
-            dataprocesu = new Date();
-            started=true;
+            licznikPomiarowTmp1Kal = 1;
+            licznikPomiarowTmp1Kont = 1;
+
+            started = true;
         }
 
         //cdt.cancel();
@@ -606,6 +683,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopclick(View v) {
+
+        TextView tvblink = (TextView) findViewById(R.id.textView11);
+        if (tvblink.getVisibility() == View.VISIBLE) {
+            tvblink.clearAnimation();
+            tvblink.setVisibility(View.GONE);
+        }
         TextView tvpozost = (TextView) findViewById(R.id.tvpoz);
         Button btnStop = (Button) findViewById(R.id.stopprocbtn);
         Button btnStart = (Button) findViewById(R.id.startprocbtn);
@@ -614,11 +697,8 @@ public class MainActivity extends AppCompatActivity {
         final TextView wym = (TextView) findViewById(R.id.wymiartv);
         final TextView tplus = (TextView) findViewById(R.id.tplustv);
         final TextView tminus = (TextView) findViewById(R.id.tminustv);
-        if (!tvpozost.getText().equals("")) {
-            if (Integer.parseInt(tvpozost.getText().toString()) > 0) {
-                showDialogCustYN("Nie wykonałeś wszystkich pomiarów\nPozostało " + tvpozost.getText().toString() + "\nCzy na pewno zakończyć proces?", 2);
-            } else {
-                btnStart.setClickable(true);
+        if (started) {
+            if (stopProc) {
                 indbtn.setEnabled(true);
                 tabLay1 = (TableLayout) findViewById(R.id.tabLay);
                 tabLay1.removeAllViews();
@@ -627,17 +707,21 @@ public class MainActivity extends AppCompatActivity {
                 //wym.setText("-");
                 //tplus.setText("-");
                 //tminus.setText("-");
-                tvpozost.setText("");
+                //tvpozost.setText("");
                 textView2.setTextColor(Color.parseColor("#000000"));
                 licznikPomiarowGlowny = 1;
                 liczProb = 1;
+                liczProbKalib = 1;
+                liczProbKont = 1;
                 licznikPomiarowTmp1 = 1;
-                showDialogCust("Uwaga", "Zakończono proces dla indeksu " + indtxt);
+                tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
+            } else {
+                showDialogCustYN("Zakończyc proces dla indeksu " + indtxt.getText().toString() + "?", 1);
             }
         } else {
             customToast("Nie rozpoczęto jeszcze procesu");
         }
-        //cdt.start();
+
         //new BlinkingText(this);
     }
 
@@ -657,7 +741,7 @@ public class MainActivity extends AppCompatActivity {
                     case 0:
                         break;
                     case 1:
-                        liczProb = 1;
+                        //liczProb = 1;
                         showDialogCust("Uwaga", "Zmierzono 3 poprawne elementy w punkcie krytycznym\nSystem w trybie normalnym");
                         break;
                     case 2:
@@ -665,13 +749,14 @@ public class MainActivity extends AppCompatActivity {
                     case 3:
                         break;
                     case 4:
-                        liczProb = 1;
+                        liczProbKalib = 1;
                         showDialogCust("Uwaga", "Kalibracja zakończona poprawnie\nSystem w trybie normalnym");
                         cdt.start();
                         break;
                     case 5:
                         break;
                     case 6:
+                        liczProbKont = 1;
                         trybText.clearAnimation();
                         trybText.setTextColor(Color.WHITE);
                         btnCtrl.setVisibility(View.GONE);
@@ -754,11 +839,12 @@ public class MainActivity extends AppCompatActivity {
                 tvpozlicz.setVisibility(View.GONE);
                 break;
             case 4: //kalibracja
+                dataprocesu=new Date();
                 trybPomiaru = 4;
                 trybText.setText("Tryb pomiaru: KALIBRACJA");
                 tvpoz.setVisibility(View.GONE);
                 tvpozlicz.setVisibility(View.GONE);
-                kalibEnd=false;
+                kalibEnd = false;
                 break;
             case 5: //interwencyjny
                 switch (trybPomiaru) {
@@ -800,6 +886,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         break;
                 }
+                dataprocesu = new Date();
                 trybPomiaru = 6;
                 blinkingControl();
                 break;
@@ -810,13 +897,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void countDownProb() {
         if (trybPomiaru == 0) {
+            liczSesja++;
             TextView tvpr = (TextView) findViewById(R.id.tvpoz);
-            int currentcd = Integer.parseInt(tvpr.getText().toString());
+            int currentcd = liczSesja;
 
-            if ((currentcd-1)==0){
+            if ((currentcd) == Integer.parseInt(strOfInd[choosenInd][6]) * 10) {
                 koniecpomiarow();
-            }else{
-                tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10) - liczProb));
+            } else {
+                tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10) - liczSesja));
             }
         }
     }
@@ -855,23 +943,23 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(targetPdf);
 
         ParcelFileDescriptor fileDescriptor = null;
-            fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-            PdfRenderer pdfRenderer = null;
-            pdfRenderer = new PdfRenderer(fileDescriptor);
+        fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+        PdfRenderer pdfRenderer = null;
+        pdfRenderer = new PdfRenderer(fileDescriptor);
 
-            PdfRenderer.Page rendererPage = pdfRenderer.openPage(0);
-            int rendererPageWidth = rendererPage.getWidth();
-            int rendererPageHeight = rendererPage.getHeight();
-            Bitmap bitmap = Bitmap.createBitmap(rendererPageWidth, rendererPageHeight, Bitmap.Config.ARGB_8888);
-            rendererPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+        PdfRenderer.Page rendererPage = pdfRenderer.openPage(0);
+        int rendererPageWidth = rendererPage.getWidth();
+        int rendererPageHeight = rendererPage.getHeight();
+        Bitmap bitmap = Bitmap.createBitmap(rendererPageWidth, rendererPageHeight, Bitmap.Config.ARGB_8888);
+        rendererPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
 
-            pdfView.setImageBitmap(bitmap);
-            mAttacher = new PhotoViewAttacher(pdfView);
-            rendererPage.close();
+        pdfView.setImageBitmap(bitmap);
+        mAttacher = new PhotoViewAttacher(pdfView);
+        rendererPage.close();
 
-            pdfRenderer.close();
-            fileDescriptor.close();
-            pdfView.setPadding(0, 0, 0, 0);
+        pdfRenderer.close();
+        fileDescriptor.close();
+        pdfView.setPadding(0, 0, 0, 0);
 
 
     }
@@ -932,22 +1020,32 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Tak", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (action == 1) {
-
-                        } else if (action == 2) {
-                            wym.setText("-");
-                            tplus.setText("-");
-                            tminus.setText("-");
-                            tvpozostal.setText("");
                             indbtn.setEnabled(true);
-                            tabLay1 = (TableLayout) findViewById(R.id.tabLay);
-                            tabLay1.removeAllViews();
+
+                            TextView textView2 = (TextView) findViewById(R.id.pomiartv);
+                            textView2.setText("0.0");
+
+                            textView2.setTextColor(Color.parseColor("#000000"));
+                            licznikPomiarowGlowny = 1;
+                            liczProb = 1;
+                            liczProbKalib = 1;
+                            liczProbKont = 1;
+                            licznikPomiarowTmp1 = 1;
+                            tvpozostal.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
+                        } else if (action == 2) {
+
+                            indbtn.setEnabled(true);
                             TextView textView2 = (TextView) findViewById(R.id.pomiartv);
                             textView2.setText("0.0");
                             textView2.setTextColor(Color.parseColor("#000000"));
                             licznikPomiarowGlowny = 1;
                             liczProb = 1;
+                            liczProbKalib = 1;
+                            liczProbKont = 1;
                             licznikPomiarowTmp1 = 1;
-                            started=false;
+                            licznikPomiarowTmp1Kal = 1;
+                            licznikPomiarowTmp1Kont = 1;
+                            started = false;
                         } else if (action == 3) {
                             startclick(btnStart);
                             try {
@@ -973,12 +1071,18 @@ public class MainActivity extends AppCompatActivity {
                         } else if (action == 4) {
                             tvloggedp.setText("----");
                             logged = false;
-                        }else if (action == 5) {
-                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"),textAlert.indexOf("KNT")+6));
-                        }else if (action == 6) {
+                        } else if (action == 5) {
+                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6),false);
+                        } else if (action == 6) {
                             tvloggedp.setText("----");
                             ustawTryb(savedTryb);
                             logged = false;
+                        } else if (action == 7) {
+                            tvloggedp.setText("----");
+                            ustawTryb(savedTryb);
+                            logged = false;
+                        }else if (action == 8) {
+                            zaloguj(textAlert.substring(textAlert.indexOf("PRC"), textAlert.indexOf("PRC") + 4), false);
                         }
                     }
                 })
@@ -994,6 +1098,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void pobierzIndeksy() {
         AsyncTask.execute(new Runnable() {
+
             @Override
             public void run() {
                 //HttpHandler.doPost("ididx:\"4\",idelem:\"1\", wymiar:\"111.1\", operator:\"PRC1\", data:\"2018-06-06 12:00:00\", maszyna:\"Piła7\"");
@@ -1028,10 +1133,10 @@ public class MainActivity extends AppCompatActivity {
     public void wyloguj(View v) {
         TextView tvloggedp = (TextView) findViewById(R.id.textView6);
         if (!tvloggedp.getText().toString().equals("----")) {
-            if(tvloggedp.getText().toString().contains("KNT")){
+            if (tvloggedp.getText().toString().contains("KNT")) {
                 showDialogCustYN("Zakończyć kontrolę i wylogować " + tvloggedp.getText().toString() + "?", 6);
 
-            }else {
+            } else {
                 showDialogCustYN("Czy wylogować użytkownika " + tvloggedp.getText().toString() + "?", 4);
 
             }
@@ -1040,7 +1145,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void zaloguj(String tagNfc) {
+    private void zaloguj(String tagNfc, boolean comm) {
         String logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"" + MIEJSCE + "\"}";
         TextView tvLogged = (TextView) findViewById(R.id.textView6);
         AsyncTask.execute(new Runnable() {
@@ -1059,22 +1164,22 @@ public class MainActivity extends AppCompatActivity {
                     if (stat.equals("true") && mes.equals("Login OK")) {
                         runOnUiThread(new Runnable() {
                             public void run() {
-
-
-                                if(tagNfc.contains("KNT")){
-                                    if(started) {
-                                        tvLogged.setText(tagNfc);
-                                        showDialogCust("Login", "Zalogowałeś się jako " + tagNfc + "\n         TRYB KONTROLI");
-                                        savedTryb=trybPomiaru;
-                                        ustawTryb(6);
-                                        logged=true;
-                                    }else{
-                                        showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.");
-                                    }
-                                }else{
+                                if (tagNfc.contains("KNT")) {
                                     tvLogged.setText(tagNfc);
-                                    showDialogCust("Login", "Zalogowałeś się jako " + tagNfc);
-                                    logged=true;
+                                    if(comm){
+                                        showDialogCust("Login", "Zalogowałeś się jako " + tagNfc + "\n\n         TRYB KONTROLI");
+                                    }
+                                    savedTryb = trybPomiaru;
+                                    ustawTryb(6);
+                                    logged = true;
+
+                                } else {
+                                    tvLogged.setText(tagNfc);
+                                    if(comm){
+                                        showDialogCust("Login", "Zalogowałeś się jako " + tagNfc);
+
+                                    }
+                                    logged = true;
                                 }
 
 
@@ -1097,6 +1202,11 @@ public class MainActivity extends AppCompatActivity {
 
                     e.printStackTrace();
                 } catch (JSONException e) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            showDialogCust("Błąd", "Problem z potwierdzeniem uprawnień.\nSprawdź połączenie sieciowe i VPN.");
+                        }
+                    });
                     e.printStackTrace();
                 }
                 //System.out.println(indeksy.toString());
@@ -1308,6 +1418,7 @@ public class MainActivity extends AppCompatActivity {
                 if (intent.getAction().equals("akcja1")) {
                     progressDialog = new ProgressDialog(context);
                     progressDialog.setMessage("Pobieranie obrazu...");
+                    progressDialog.setCancelable(false);
                     progressDialog.show();
                 } else if (intent.getAction().equals("akcja2")) {
                     Boolean outputFileB = intent.getBooleanExtra("outputFileB", false);
@@ -1346,7 +1457,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }, 3000);
                         progressDialog.dismiss();
-                            //showDialogCust("Błąd", "Nie można pobrać obrazu");
+                        //showDialogCust("Błąd", "Nie można pobrać obrazu");
 
 
                     }
@@ -1364,11 +1475,12 @@ public class MainActivity extends AppCompatActivity {
                     if (resp == 200) {
                         EditText editTextMain = (EditText) findViewById(R.id.editText1);
                         ScrollView svx = (ScrollView) findViewById(R.id.sv1);
+                        countDownProb();
                         newRowMeasure = prepareRow();
                         addTabRow(newRowMeasure);
-                        countDownProb();
-                        if(kalibEnd){
+                        if (kalibEnd) {
                             ustawTryb(0);
+                            kalibEnd = false;
                         }
                         editTextMain.requestFocus();
                         svx.postDelayed(new Runnable() {
@@ -1398,20 +1510,49 @@ public class MainActivity extends AppCompatActivity {
                 } else if (intent.getAction().equals("akcja6")) {
                     TextView tvLogged = (TextView) findViewById(R.id.textView6);
                     String currentLog = tvLogged.getText().toString();
+                    String newLog = intent.getStringExtra("nfcTag");
                     //tvLogged.setText(intent.getStringExtra("nfcTag"));
-                    if (tvLogged.getText().toString().equals("----")) {
-                        zaloguj(intent.getStringExtra("nfcTag"));
-                    }else if(!currentLog.equals("----") && !currentLog.contains("KNT")){
-                        showDialogCustYN("Obecnie zlogowany jest: "+currentLog+"\nPrzelogować na: "+intent.getStringExtra("nfcTag")+"?",5);
+
+                    if(!currentLog.equals(newLog)) {
+                        if (currentLog.equals("----")) {
+                            if (!newLog.contains("KNT")) {
+                                zaloguj(newLog, true);
+                            } else if (newLog.contains("KNT") && !started) {
+                                showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.");
+                            } else if (newLog.contains("KNT") && started) {
+                                zaloguj(newLog, true);
+                            }
+                        } else {
+                            if (currentLog.contains("KNT")) {
+                                if (newLog.contains("KNT")) {
+                                    showDialogCustYN("Obecnie zalogowany jest: " + currentLog + " w trybie kontroli.\nPrzelogować na: " + newLog + " w trybie kontroli?", 5);
+                                } else {
+                                    customToast("Zalogowanie niemożliwe w trakcie kontroli!");
+                                }
+                            } else {
+                                if (newLog.contains("KNT")) {
+                                    if(started) {
+                                        showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + intent.getStringExtra("nfcTag") + " w trybie kontroli?", 5);
+                                    }else{
+                                        showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.");
+                                    }
+                                } else {
+                                    showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + "?", 8);
+                                }
+
+                            }
+                        }
+                    }else{
+                        customToast("Jesteś już zalogowany");
                     }
-                    //Toast.makeText(context, "NFC tag: "+intent.getStringExtra("nfcTag"), Toast.LENGTH_SHORT).show();
+
                 } else if (intent.getAction().equals("akcja7")) {
                     blinkingAlert();
-                }else if (intent.getAction().equals("akcja8")) {
-                    if(intent.getIntExtra("errortype",1)==0){
-                        showDialogCust("Błąd!","Nie można zapisać obrazu.\nSprawdź uprawnienia aplikacji w ustawieniach systemu.");
-                    }else if(intent.getIntExtra("errortype",1)==1){
-                        showDialogCust("Błąd!","Nie można pobrać obrazu.\nSprawdź połączenie sieciowe");
+                } else if (intent.getAction().equals("akcja8")) {
+                    if (intent.getIntExtra("errortype", 1) == 0) {
+                        showDialogCust("Błąd!", "Nie można zapisać obrazu.\nSprawdź uprawnienia aplikacji w ustawieniach systemu.");
+                    } else if (intent.getIntExtra("errortype", 1) == 1) {
+                        showDialogCust("Błąd!", "Nie można pobrać obrazu.\nSprawdź połączenie sieciowe");
                     }
                 }
             }
@@ -1423,6 +1564,19 @@ public class MainActivity extends AppCompatActivity {
     private void blinkingAlert() {
         // btext = new BlinkingText(this);
         TextView tvblink = (TextView) findViewById(R.id.textView9);
+        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(700); //You can manage the time of the blink with this parameter
+        anim.setStartOffset(20);
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(Animation.INFINITE);
+        tvblink.setVisibility(View.VISIBLE);
+        tvblink.startAnimation(anim);
+
+    }
+
+    private void blinkingAlertStop() {
+        // btext = new BlinkingText(this);
+        TextView tvblink = (TextView) findViewById(R.id.textView11);
         Animation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(700); //You can manage the time of the blink with this parameter
         anim.setStartOffset(20);
@@ -1463,9 +1617,16 @@ public class MainActivity extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    private void koniecpomiarow(){
+    private void koniecpomiarow() {
+        EditText editText = (EditText) findViewById(R.id.editText1);
+        liczSesja = 0;
+        showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary.");
+        editText.setText("");
+        TextView tvpr = (TextView) findViewById(R.id.tvpoz);
+        tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
         cdt = new CountDown(900000, 1000, this);
         cdt.start();
+
     }
 
 }

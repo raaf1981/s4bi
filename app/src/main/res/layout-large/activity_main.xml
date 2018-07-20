@@ -512,11 +512,13 @@
 
     <TextView
         android:id="@+id/textView11"
-        android:layout_width="1262dp"
-        android:layout_height="322dp"
-        android:layout_x="20dp"
-        android:layout_y="270dp"
+        android:layout_width="900dp"
+        android:layout_height="490dp"
+        android:layout_x="185dp"
+        android:layout_y="79dp"
+        android:gravity="center_horizontal"
         android:text="Zatrzymaj proces!"
+        android:textAlignment="center"
         android:textColor="@android:color/holo_red_light"
         android:textSize="160dp"
         android:textStyle="bold"

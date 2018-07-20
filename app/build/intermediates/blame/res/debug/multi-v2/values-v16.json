@@ -4,13 +4,32 @@
             "outputFile": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-25.4.0.aar/70c61ec7e12c227e376a37280c6679c6/res/values-v16/values-v16.xml",
+                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/support-compat-26.0.0.aar/863b7447fb1c4f6728023b56f8cf6609/res/values-v16/values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
                         "startOffsets": "55",
                         "endColumns": "65",
                         "endOffsets": "116"
+                    }
+                },
+                {
+                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/399e35a9a215c3cf668a7809688ac4d6/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "121",
+                        "endLines": "6",
+                        "endColumns": "12",
+                        "endOffsets": "289"
                     }
                 }
             ]

@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -269,38 +270,43 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if(mPopupWindow!=null){
-            mPopupWindow.dismiss();
-        }
-        String data = (String) parent.getItemAtPosition(position);
-        dismiss();
         TextView tvMain = (TextView) getActivity().findViewById(R.id.indextv);
-        TextView tvtest = (TextView) getActivity().findViewById(R.id.test);
-        TextView tvwym = (TextView) getActivity().findViewById(R.id.wymiartv);
-        TextView tvtolp = (TextView) getActivity().findViewById(R.id.tplustv);
-        TextView tvtolm = (TextView) getActivity().findViewById(R.id.tminustv);
-        choosenInd = Arrays.asList(indexes).indexOf(data);
-        tvMain.setText(indexesTMP[choosenInd]);
-        tvtest.setText(String.valueOf(choosenInd));
-        tvwym.setText(indIncome[choosenInd][3]);
-        if (indIncome[choosenInd][4] == "null"){
-            tvtolp.setText("0.0");
-        }else{
-            tvtolp.setText(indIncome[choosenInd][4]);
+        if(!tvMain.getText().equals(indexesTMP[choosenInd])) {
+            if (mPopupWindow != null) {
+                mPopupWindow.dismiss();
+            }
+            String data = (String) parent.getItemAtPosition(position);
+            dismiss();
 
+            TextView tvtest = (TextView) getActivity().findViewById(R.id.test);
+            TextView tvwym = (TextView) getActivity().findViewById(R.id.wymiartv);
+            TextView tvtolp = (TextView) getActivity().findViewById(R.id.tplustv);
+            TextView tvtolm = (TextView) getActivity().findViewById(R.id.tminustv);
+            TableLayout tabLay1 = (TableLayout) getActivity().findViewById(R.id.tabLay);
+            choosenInd = Arrays.asList(indexes).indexOf(data);
+            tvMain.setText(indexesTMP[choosenInd]);
+            tvtest.setText(String.valueOf(choosenInd));
+            tvwym.setText(indIncome[choosenInd][3]);
+            if (indIncome[choosenInd][4] == "null") {
+                tvtolp.setText("0.0");
+            } else {
+                tvtolp.setText(indIncome[choosenInd][4]);
+
+            }
+            if (indIncome[choosenInd][5] == "null") {
+                tvtolm.setText("0.0");
+            } else {
+                tvtolm.setText(indIncome[choosenInd][5]);
+            }
+            MainActivity.choosenInd = choosenInd;
+            MainActivity.indexchoosen = true;
+            EditText editText = (EditText) getActivity().findViewById(R.id.editText1);
+            editText.requestFocus();
+            TextView tvpoz = (TextView) getActivity().findViewById(R.id.tvpoz);
+            tvpoz.setText(String.valueOf(Integer.parseInt(indIncome[choosenInd][6]) * 10));
+            tabLay1.removeAllViews();
+            downloadPDF();
         }
-        if (indIncome[choosenInd][5] == "null"){
-            tvtolm.setText("0.0");
-        }else{
-            tvtolm.setText(indIncome[choosenInd][5]);
-        }
-        MainActivity.choosenInd=choosenInd;
-        MainActivity.indexchoosen=true;
-        EditText editText = (EditText) getActivity().findViewById(R.id.editText1);
-        editText.requestFocus();
-        TextView tvpoz = (TextView) getActivity().findViewById(R.id.tvpoz);
-        tvpoz.setText(String.valueOf(Integer.parseInt(indIncome[choosenInd][6])*10));
-        downloadPDF();
 
     }
 

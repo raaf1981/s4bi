@@ -59,6 +59,7 @@ public class CountDown extends CountDownTimer {
 
     @Override
     public void onFinish() {
+        MainActivity.millis=0;
         final TextView textView8 = (TextView) act.findViewById(R.id.textView8);
         textView8.setText("00:00:00");
         Intent intent = new Intent("akcja7");
