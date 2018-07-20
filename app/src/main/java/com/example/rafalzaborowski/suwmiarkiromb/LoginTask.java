@@ -36,9 +36,10 @@ public class LoginTask {
     public LoginTask(String tagNfc, Activity act) {
         this.context = (Context) act.getBaseContext();
         this.tagNfc = tagNfc;
+        new LoggingTask().execute();
     }
 
-    private class DownloadingTask extends AsyncTask<Void, Void, Void> {
+    private class LoggingTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {

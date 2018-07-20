@@ -227,13 +227,13 @@
 
     <EditText
         android:id="@+id/editText1"
-        android:layout_width="30dp"
+        android:layout_width="9dp"
         android:layout_height="79dp"
         android:layout_alignBaseline="@+id/pomiartv"
         android:layout_alignStart="@+id/pomiartv"
         android:layout_marginBottom="4dp"
         android:layout_marginStart="508dp"
-        android:layout_x="536dp"
+        android:layout_x="557dp"
         android:layout_y="656dp"
         android:ems="10"
         android:inputType="textPersonName"
