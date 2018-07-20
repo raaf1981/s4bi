@@ -271,11 +271,14 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         TextView tvMain = (TextView) getActivity().findViewById(R.id.indextv);
+        String data = (String) parent.getItemAtPosition(position);
+        choosenInd = Arrays.asList(indexes).indexOf(data);
+
         if(!tvMain.getText().equals(indexesTMP[choosenInd])) {
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
-            String data = (String) parent.getItemAtPosition(position);
+
             dismiss();
 
             TextView tvtest = (TextView) getActivity().findViewById(R.id.test);
@@ -283,7 +286,7 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
             TextView tvtolp = (TextView) getActivity().findViewById(R.id.tplustv);
             TextView tvtolm = (TextView) getActivity().findViewById(R.id.tminustv);
             TableLayout tabLay1 = (TableLayout) getActivity().findViewById(R.id.tabLay);
-            choosenInd = Arrays.asList(indexes).indexOf(data);
+
             tvMain.setText(indexesTMP[choosenInd]);
             tvtest.setText(String.valueOf(choosenInd));
             tvwym.setText(indIncome[choosenInd][3]);

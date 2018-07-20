@@ -26,12 +26,15 @@ import java.nio.charset.StandardCharsets;
 import javax.net.ssl.HttpsURLConnection;
 
 public class HttpHandler {
+    private static final String ADRESTEST = "app.s4bi", BAZATEST = "miarki", ADRESMAIN = "192.168.1.33:81", BAZAMAIN = "qcontrol";
 
     private static String userName = "admin";
     private static String passw = "RSZx9Hqz8B";
-    private static String urlConGetIndexes = "http://app.s4bi.pl/miarki/index.php/api/rest/indeks/";
-    private static String urlConPostNewIndex = "http://app.s4bi.pl/miarki/index.php/api/rest/pomiar";
-    private static String urlConPostLogin = "http://app.s4bi.pl/miarki/index.php/api/rest/login";
+    private static String adres = ADRESMAIN;
+    private static String baza = BAZAMAIN;
+    private static String urlConGetIndexes = "http://"+ adres +"/"+baza+"/index.php/api/rest/indeks/";
+    private static String urlConPostNewIndex = "http://"+ adres +"/"+baza+"/index.php/api/rest/pomiar";
+    private static String urlConPostLogin = "http://"+ adres +"/"+baza+"/index.php/api/rest/login";
     private static int flags = Base64.NO_WRAP | Base64.URL_SAFE;
     private static byte[] upbyte = (userName + ":" + passw).getBytes();
 

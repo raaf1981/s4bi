@@ -44,10 +44,10 @@ public class CountDown extends CountDownTimer {
             }
 
         } else {
-            if (seconds > 60) {
+            if (seconds > 59) {
                 textView5.setTextColor(Color.RED);
                 textView8.setTextColor(Color.RED);
-                textView8.setText("00:00:0" + String.valueOf(seconds));
+                textView8.setText("00:0" + String.valueOf(minutes) + ":" + String.valueOf(seconds - (minutes * 60)));
             } else {
                 textView5.setTextColor(Color.RED);
                 textView8.setTextColor(Color.RED);
