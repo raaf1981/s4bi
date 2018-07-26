@@ -91,7 +91,7 @@ public class LoginTask {
 
                 e.printStackTrace();
             } catch (JSONException e) {
-                endResult=1;
+                endResult=3;
 
                 e.printStackTrace();
             }

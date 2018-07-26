@@ -7,10 +7,12 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
@@ -21,6 +23,8 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.os.StrictMode;
@@ -58,16 +62,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
+import java.util.Set;
+
+import com.felhr.usbserial.CDCSerialDevice;
+import com.felhr.usbserial.UsbSerialDevice;
+import com.felhr.usbserial.UsbSerialInterface;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Main Activity", MIEJSCE = "Pila";
-    private static final int MILLISMAIN = 180000;
+    private static final int MILLISMAIN = 5000;
     public static String[][] strOfInd;
     public static int choosenInd;
     InputStreamReader indeksy, odpowiedz;
@@ -90,16 +101,18 @@ public class MainActivity extends AppCompatActivity {
     private boolean pomiarOk, timerStart;
     private String[] headerRow = {"ID", "Godzina", "Indeks", "Wymiar", "T+", "T-", "Pomiar", "Punkt", "Tryb"};
     private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT", "KNT"};
-    private String pomiarAktualny;
+    private String pomiarAktualny, kogut = "1";
     private String newIndexPost;
     private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2", "Obróbka 3"};
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
     private int trybPomiaru = -1, savedTryb = -1;
-    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = false, kalibEnd = false;
-    public static boolean indexchoosen = false, stopProc = false,comm=false;
+    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = true, kalibEnd = false;
+    public static boolean indexchoosen = false, stopProc = false, comm = false;
     FileNotFoundException exception1 = null;
     public static long millis = -1;
+    private UsbService usbService;
+    private MyHandler mHandler;
 
     @Override
     public void onBackPressed() {
@@ -107,20 +120,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        try {
+            unbindService(usbConnection);
+        } catch (IllegalArgumentException e) {
+
+        }
+        try {
+            unregisterReceiver(mUsbReceiver);
+        } catch (IllegalArgumentException e) {
+
+        }
+        try {
+            unregisterReceiver(breceive);
+        } catch (IllegalArgumentException e) {
+
+        }
+        super.onDestroy();
+
+    }
+
+    @Override
     protected void onPause() {
-        super.onPause();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(this.getIntent().getAction())) {
             finish();
         }
+        super.onPause();
+
     }
 
     @Override
     protected void onResume() {
+
+        //startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
         super.onResume();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         cdt = new CountDown(MILLISMAIN, 1000, this);
@@ -134,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction("akcja8");
         filter.addAction("akcja9");
         filter.addAction("akcja10");
+        filter.addAction("akcja11");
+        filter.addAction("akcja12");
+        filter.addAction("akcja13");
+        registerReceiver(breceive, filter);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
@@ -148,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onKey(View view, int keyCode, KeyEvent keyevent) {
 
                 if ((keyevent.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-
+                    //editText.setClickable(false);
                     if (!logged && !indexchoosen && !started) {
                         showDialogCust("Błąd", "Aby wykonać pomiary należy się zalogować,\nwybrać indeks i rozpocząć proces.");
                         editText.setText("");
@@ -174,6 +217,16 @@ public class MainActivity extends AppCompatActivity {
                                 showDialogCust("Błąd", "Rozpocznij proces naciskając przycisk START PROCES.");
                                 break;
                             case 0: //normalny
+                                if (!kogut.equals("1")) {
+                                    kogut = "1";
+                                    if (usbService != null) { // if UsbService was correctly binded, Send data
+                                        usbService.write(kogut.getBytes());
+                                        //customToast("USB binded!!");
+                                        //customToast("usb service toString:  "+usbService.toString());
+                                        //customToast("usb data:  "+data);
+                                    }
+                                }
+
                                 TextView tvpr = (TextView) findViewById(R.id.tvpoz);
                                 if (Integer.parseInt(tvpr.getText().toString()) == ((Integer.parseInt(strOfInd[choosenInd][6]) * 10))) {
                                     dataprocesu = new Date();
@@ -242,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
                             //break;
                             case 1: //krytyczny
-                                boolean end = false;
+                                /*boolean end = false;
                                 try {
                                     pomiarAktualny = editText.getText().toString();
                                     Double.parseDouble(pomiarAktualny);
@@ -264,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                         textView2.setTextColor(Color.parseColor("#55bb55"));
                                     } else {
+
                                         elemOk = false;
                                         textView2.setTextColor(Color.RED);
                                     }
@@ -275,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (NumberFormatException e) {
                                     showDialogCust("Błąd", "Błędny pomiar.");
                                 }
-                                editText.requestFocus();
+                                editText.requestFocus();*/
                                 break;
                             case 2: //
                                 break;
@@ -288,31 +342,9 @@ public class MainActivity extends AppCompatActivity {
                                     textView2.setText(editText.getText());
                                     editText.setText("");
                                     checkMeasure();
-                                    if (trybKalibLiczPom == 0) {
-                                        elemOk = true;
-                                    }
-                                    trybKalibLiczPom++;
                                     if (pomiarOk) {
-                                        if (trybKalibLiczPom == iloscPunktow && elemOk) {
-                                            trybKalibLiczPom = 0;
-                                            trybKalibLicz++;
-                                            if (trybKalibLicz == 1) {
-                                                kalibEnd = true;
-                                                trybKalibLicz = 0;
-                                                elemOk = true;
-                                                newIndexPost = prepNewIndPost(textView2.getText().toString());
-                                                zapiszWynik();
-
-                                                return true;
-                                                //break;
-                                            }
-                                        } else if (trybKalibLiczPom == iloscPunktow && !elemOk) {
-                                            trybKalibLiczPom = 0;
-                                        }
                                         textView2.setTextColor(Color.parseColor("#55bb55"));
                                     } else {
-                                        elemOk = false;
-                                        trybKalibLicz = 0;
                                         textView2.setTextColor(Color.RED);
                                     }
                                     newIndexPost = prepNewIndPost(textView2.getText().toString());
@@ -320,7 +352,6 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (NumberFormatException e) {
                                     showDialogCust("Błąd", "Błędny pomiar");
                                 }
-
                                 editText.requestFocus();
                                 break;
                             case 5:
@@ -375,6 +406,7 @@ public class MainActivity extends AppCompatActivity {
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         spinner.setAdapter(spinnerArrayAdapter);
         spinner.setPrompt("Miejsce pomiaru");
+        spinner.setSelection(0);
         //spinner.setSelection(0);
 
     }
@@ -422,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
             TextView newTV = new TextView(this);
             newTV.setText(tabTV[i]);
             if (pomiarOk) {
-                newTV.setTextColor(Color.parseColor("#55bb55"));
+                newTV.setTextColor(Color.parseColor("#00cc66"));
             } else {
                 newTV.setTextColor(Color.RED);
             }
@@ -450,10 +482,10 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(20, 2, 17, 2);
                         break;
                     case 7:
-                        newTV.setPadding(49, 2, 17, 2);
+                        newTV.setPadding(50, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(34, 2, 17, 2);
+                        newTV.setPadding(32, 2, 17, 2);
                         break;
                 }
             } else if (licznikPomiarowGlowny >= 11 && licznikPomiarowGlowny < 100) {
@@ -474,16 +506,16 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(35, 2, 17, 2);
                         break;
                     case 5:
-                        newTV.setPadding(16, 2, 17, 2);
+                        newTV.setPadding(12, 2, 17, 2);
                         break;
                     case 6:
-                        newTV.setPadding(18, 2, 17, 2);
+                        newTV.setPadding(22, 2, 17, 2);
                         break;
                     case 7:
-                        newTV.setPadding(44, 2, 17, 2);
+                        newTV.setPadding(49, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(39, 2, 17, 2);
+                        newTV.setPadding(32, 2, 17, 2);
                         break;
                 }
             } else {
@@ -655,7 +687,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startclick(View v) {
-
+        String data = "1";
+        if (usbService != null) { // if UsbService was correctly binded, Send data
+            usbService.write(data.getBytes());
+            //customToast("USB binded!!");
+            //customToast("usb service toString:  "+usbService.toString());
+            //customToast("usb data:  "+data);
+        }
         if (logged) {
             tabLay1 = (TableLayout) findViewById(R.id.tabLay);
             tabLay1.removeAllViews();
@@ -681,6 +719,7 @@ public class MainActivity extends AppCompatActivity {
                 textView5.setTextColor(Color.GREEN);
                 textView8.setTextColor(Color.GREEN);
                 indbtn.setEnabled(false);
+                indtv.setClickable(false);
                 licznikPomiarowTmp1 = 1;
                 licznikPomiarowTmp1Kal = 1;
                 licznikPomiarowTmp1Kont = 1;
@@ -698,6 +737,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopclick(View v) {
+
         stopProces("auto");
 
     }
@@ -727,7 +767,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 4:
                         liczProbKalib = 1;
-                        if(started) {
+                        if (started) {
                             showDialogCust("Uwaga", "Kalibracja zakończona poprawnie\nSystem w trybie normalnym");
                             cdt.start();
                         }
@@ -819,6 +859,30 @@ public class MainActivity extends AppCompatActivity {
                 tvpozlicz.setVisibility(View.GONE);
                 break;
             case 4: //kalibracja
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    case 5:
+                        break;
+                    case 6:
+                        liczProbKont = 1;
+                        trybText.clearAnimation();
+                        trybText.setTextColor(Color.WHITE);
+                        btnCtrl.setVisibility(View.GONE);
+                        break;
+                    default:
+                        break;
+                }
                 dataprocesu = new Date();
                 trybPomiaru = 4;
                 trybText.setText("Tryb pomiaru: KALIBRACJA");
@@ -891,14 +955,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        //registerReceiver(breceive, filter);
+        //startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
         super.onStart();
-        registerReceiver(breceive, filter);
     }
 
     @Override
     protected void onStop() {
+
         super.onStop();
-        unregisterReceiver(breceive);
     }
 
     private void customToast(String text) {
@@ -912,7 +977,7 @@ public class MainActivity extends AppCompatActivity {
         //Shadow of the Of the Text Color
         textV.setShadowLayer(0, 0, 0, Color.TRANSPARENT);
         textV.setPadding(0, 0, 0, 0);
-        textV.setTextColor(Color.YELLOW);
+        textV.setTextColor(Color.BLUE);
         textV.setTextSize(60);
         textV.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         toast.show();
@@ -975,6 +1040,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void showDialogCust(String title, String textAlert, final int action2) {
+        final TextView myView = new TextView(getApplicationContext());
+        myView.setText(textAlert);
+        myView.setTextSize(30);
+        myView.setTextColor(Color.parseColor("#dddddd"));
+        //myView.setPadding(10,5,10,5);
+        Button btnStop = (Button) findViewById(R.id.stopprocbtn);
+        TextView indtxt = (TextView) findViewById(R.id.indextv);
+        Button indbtn = (Button) findViewById(R.id.zmianaindbtn);
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogCustom2);
+        builder.setTitle(title)
+                .setView(myView)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (action2 == 1) {
+                            registerReceiver(breceive, filter);
+                        }
+                        dialog.dismiss();
+
+                    }
+                })
+
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+
+    }
+
     private void showDialogCustYN(String textAlert, final int action) {
         final TextView myView = new TextView(getApplicationContext());
         myView.setText(textAlert);
@@ -1005,6 +1100,7 @@ public class MainActivity extends AppCompatActivity {
                         } else if (action == 2) {
 
                             indbtn.setEnabled(true);
+                            indtv.setClickable(true);
                             TextView textView2 = (TextView) findViewById(R.id.pomiartv);
                             textView2.setText("0.0");
                             textView2.setTextColor(Color.parseColor("#000000"));
@@ -1015,6 +1111,8 @@ public class MainActivity extends AppCompatActivity {
                             licznikPomiarowTmp1 = 1;
                             licznikPomiarowTmp1Kal = 1;
                             licznikPomiarowTmp1Kont = 1;
+                            trybKalibLicz = 0;
+                            trybKalibLiczPom = 0;
                             started = false;
                         } else if (action == 3) {
                             startclick(btnStart);
@@ -1030,7 +1128,6 @@ public class MainActivity extends AppCompatActivity {
                                     textView2.setTextColor(Color.RED);
                                 }
                                 newIndexPost = prepNewIndPost(textView2.getText().toString());
-
                                 zapiszWynik();
                             } catch (NumberFormatException e) {
                                 showDialogCust("Błąd", "Błędny pomiar");
@@ -1043,9 +1140,19 @@ public class MainActivity extends AppCompatActivity {
                             logged = false;
                         } else if (action == 5) {
                             zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false);
+                            registerReceiver(breceive, filter);
                         } else if (action == 6) {
                             tvloggedp.setText("----");
                             ustawTryb(savedTryb);
+                            if (!kogut.equals("1")) {
+                                kogut = "1";
+                                if (usbService != null) { // if UsbService was correctly binded, Send data
+                                    usbService.write(kogut.getBytes());
+                                    //customToast("USB binded!!");
+                                    //customToast("usb service toString:  "+usbService.toString());
+                                    //customToast("usb data:  "+data);
+                                }
+                            }
                             logged = false;
                         } else if (action == 7) {
                             tvloggedp.setText("----");
@@ -1053,14 +1160,19 @@ public class MainActivity extends AppCompatActivity {
                             logged = false;
                         } else if (action == 8) {
                             zaloguj(textAlert.substring(textAlert.lastIndexOf("PRC"), textAlert.lastIndexOf("PRC") + 6), false);
+                            registerReceiver(breceive, filter);
                         } else if (action == 9) {
                             zaloguj(textAlert.substring(textAlert.lastIndexOf("KNT"), textAlert.lastIndexOf("KNT") + 6), false);
+                            registerReceiver(breceive, filter);
                         }
                     }
                 })
                 .setNegativeButton("Nie", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        if ((action == 9) || (action == 8) || (action == 5)) {
+                            registerReceiver(breceive, filter);
+                        }
                     }
                 })
 
@@ -1107,10 +1219,8 @@ public class MainActivity extends AppCompatActivity {
         if (!tvloggedp.getText().toString().equals("----")) {
             if (tvloggedp.getText().toString().contains("KNT")) {
                 showDialogCustYN("Zakończyć kontrolę i wylogować " + tvloggedp.getText().toString() + "?", 6);
-                logged = false;
             } else {
                 showDialogCustYN("Czy wylogować użytkownika " + tvloggedp.getText().toString() + "?", 4);
-                logged = false;
             }
         } else {
             customToast("Nie jesteś zalogowany");
@@ -1118,8 +1228,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void zaloguj(String tagNfc, boolean comm2) {
-        comm=comm2;
-        new LoginTask(tagNfc,this);
+        comm = comm2;
+        new LoginTask(tagNfc, this);
 
     }
 
@@ -1323,6 +1433,9 @@ public class MainActivity extends AppCompatActivity {
         public static final String akcja8 = "akcja8";
         public static final String akcja9 = "akcja9";
         public static final String akcja10 = "akcja10";
+        public static final String akcja11 = "akcja11";
+        public static final String akcja12 = "akcja12";
+        public static final String akcja13 = "akcja13";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1333,6 +1446,7 @@ public class MainActivity extends AppCompatActivity {
                     progressDialog.setCancelable(false);
                     progressDialog.show();
                 } else if (intent.getAction().equals("akcja2")) {
+                    liczSesja = 0;
                     Boolean outputFileB = intent.getBooleanExtra("outputFileB", false);
                     try {
                         openPDF();
@@ -1384,30 +1498,208 @@ public class MainActivity extends AppCompatActivity {
                 } else if (intent.getAction().equals("akcja4")) {
                     Integer resp = intent.getIntExtra("respCode", 0);
                     progressDialog.dismiss();
+                    int iloscPunktow = Integer.parseInt(strOfInd[choosenInd][6]);
                     if (resp == 200) {
-                        EditText editTextMain = (EditText) findViewById(R.id.editText1);
+                        EditText editText = (EditText) findViewById(R.id.editText1);
+                        TextView textView2 = (TextView) findViewById(R.id.pomiartv);
                         ScrollView svx = (ScrollView) findViewById(R.id.sv1);
                         countDownProb();
                         newRowMeasure = prepareRow();
                         addTabRow(newRowMeasure);
+
+                        switch (trybPomiaru) {
+                            case -1: //nieoznaczony
+                                showDialogCust("Błąd", "Rozpocznij proces naciskając przycisk START PROCES.");
+                                break;
+                            case 0: //normalny
+                                if (!kogut.equals("1")) {
+                                    kogut = "1";
+                                    if (usbService != null) { // if UsbService was correctly binded, Send data
+                                        usbService.write(kogut.getBytes());
+                                        //customToast("USB binded!!");
+                                        //customToast("usb service toString:  "+usbService.toString());
+                                        //customToast("usb data:  "+data);
+                                    }
+                                }
+
+                                TextView tvpr = (TextView) findViewById(R.id.tvpoz);
+                                if (Integer.parseInt(tvpr.getText().toString()) == ((Integer.parseInt(strOfInd[choosenInd][6]) * 10))) {
+                                    dataprocesu = new Date();
+                                }
+                                if (!tvpr.getText().toString().equals("")) {
+                                    if (logged && started && millis > 0) {
+                                        showDialogCust("Uwaga", "Nie można wykonać pomiaru przed czasem.");
+                                        editText.setText("");
+                                    } else {
+                                        try {
+                                            pomiarAktualny = editText.getText().toString();
+                                            Double.parseDouble(pomiarAktualny);
+                                            tvpr.setText(editText.getText());
+                                            editText.setText("");
+                                            checkMeasure();
+                                            trybNormalLiczPom++;
+                                            if (pomiarOk) {
+                                                if (trybNormalLiczPom == iloscPunktow && !elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                    trybNormalLicz++;
+                                                    elemOk = true;
+                                                    if (trybNormalLicz == 3) {
+                                                        trybNormalLicz = 0;
+                                                        showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
+                                                        stopProc = true;
+                                                        blinkingAlertStop();
+                                                        //ustawTryb(2);
+                                                    }
+                                                } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                }
+                                                textView2.setTextColor(Color.parseColor("#55bb55"));
+                                            } else {
+                                                if (trybNormalLiczPom == iloscPunktow && !elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                    trybNormalLicz++;
+                                                    elemOk = true;
+                                                    if (trybNormalLicz == 3) {
+                                                        trybNormalLicz = 0;
+                                                        showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
+                                                        stopProc = true;
+                                                        blinkingAlertStop();
+                                                        //ustawTryb(2);
+                                                    }
+                                                } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
+                                                    trybNormalLiczPom = 0;
+                                                }
+                                                elemOk = false;
+                                                textView2.setTextColor(Color.RED);
+                                            }
+                                            newIndexPost = prepNewIndPost(textView2.getText().toString());
+                                            zapiszWynik();
+
+
+                                        } catch (NumberFormatException e) {
+                                            showDialogCust("Błąd", "Błędny pomiar!");
+                                        }
+                                        editText.requestFocus();
+                                    }
+
+
+                                } else {
+                                    showDialogCust("Błąd", "Nie wybrano indeksu.");
+                                }
+
+                                //break;
+                            case 1: //krytyczny
+                                boolean end = false;
+                                try {
+                                    pomiarAktualny = editText.getText().toString();
+                                    Double.parseDouble(pomiarAktualny);
+                                    textView2.setText(editText.getText());
+                                    editText.setText("");
+                                    checkMeasure();
+                                    trybKalibLiczPom++;
+                                    if (pomiarOk) {
+                                        if (trybKalibLiczPom == iloscPunktow && elemOk) {
+                                            trybKalibLiczPom = 0;
+                                            trybKalibLicz++;
+                                            if (trybKalibLicz == 3) {
+                                                trybKalibLicz = 0;
+                                                elemOk = true;
+                                                end = true;
+                                            }
+                                        } else if (trybKalibLiczPom == iloscPunktow && !elemOk) {
+                                            trybKalibLiczPom = 0;
+                                        }
+                                        textView2.setTextColor(Color.parseColor("#55bb55"));
+                                    } else {
+
+                                        elemOk = false;
+                                        textView2.setTextColor(Color.RED);
+                                    }
+                                    newIndexPost = prepNewIndPost(textView2.getText().toString());
+                                    zapiszWynik();
+                                    if (end) {
+                                        ustawTryb(0);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    showDialogCust("Błąd", "Błędny pomiar.");
+                                }
+                                editText.requestFocus();
+                                break;
+                            case 2: //
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                if (trybKalibLiczPom == 0) {
+                                    elemOk = true;
+                                }
+                                trybKalibLiczPom++;
+                                if (pomiarOk) {
+                                    if (trybKalibLiczPom == iloscPunktow && elemOk) {
+                                        trybKalibLiczPom = 0;
+                                        trybKalibLicz++;
+                                        if (trybKalibLicz == 2) {
+                                            kalibEnd = true;
+                                            trybKalibLicz = 0;
+                                            elemOk = true;
+                                            break;
+                                        }
+                                    } else if (trybKalibLiczPom == iloscPunktow && !elemOk) {
+                                        trybKalibLiczPom = 0;
+                                        elemOk = true;
+                                    }
+                                    textView2.setTextColor(Color.parseColor("#55bb55"));
+                                } else {
+                                    if (trybKalibLiczPom == iloscPunktow) {
+                                        trybKalibLiczPom = 0;
+                                    }
+                                    elemOk = false;
+                                    trybKalibLicz = 0;
+                                    textView2.setTextColor(Color.RED);
+                                }
+                                editText.requestFocus();
+                                break;
+                            case 5:
+                                break;
+                            case 6:
+                                pomiarAktualny = editText.getText().toString();
+                                Double.parseDouble(pomiarAktualny);
+                                textView2.setText(editText.getText());
+                                editText.setText("");
+                                checkMeasure();
+                                if (pomiarOk) {
+                                    textView2.setTextColor(Color.parseColor("#55bb55"));
+                                } else {
+                                    textView2.setTextColor(Color.RED);
+
+                                }
+                                newIndexPost = prepNewIndPost(textView2.getText().toString());
+                                zapiszWynik();
+                                break;
+                            default:
+                                editText.requestFocus();
+                                break;
+                        }
+
                         if (kalibEnd) {
                             ustawTryb(0);
                             kalibEnd = false;
                         }
-                        editTextMain.requestFocus();
+                        editText.requestFocus();
                         svx.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 //replace this line to scroll up or down
                                 svx.fullScroll(ScrollView.FOCUS_DOWN);
-                                editTextMain.requestFocus();
+                                editText.requestFocus();
                             }
                         }, 100L);
                     } else {
                         progressDialog.dismiss();
                         showDialogCust("Błąd", "Wystąpił problem z komunikacją.\nSkontaktuj się z administratorem.");
                     }
-
+                    //EditText editTextMain = (EditText) findViewById(R.id.editText1);
+                    //editTextMain.setClickable(true);
                 } else if (intent.getAction().equals("akcja5")) {
                     TextView tv9 = (TextView) findViewById(R.id.textView9);
                     int tc = tv9.getCurrentTextColor();
@@ -1430,13 +1722,15 @@ public class MainActivity extends AppCompatActivity {
                             if (!newLog.contains("KNT")) {
                                 zaloguj(newLog, true);
                             } else if (newLog.contains("KNT") && !started) {
-                                showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.");
+                                unregisterReceiver(breceive);
+                                showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
                             } else if (newLog.contains("KNT") && started) {
                                 zaloguj(newLog, true);
                             }
                         } else {
                             if (currentLog.contains("KNT")) {
                                 if (newLog.contains("KNT")) {
+                                    unregisterReceiver(breceive);
                                     showDialogCustYN("Obecnie zalogowany jest: " + currentLog + " w trybie kontroli.\nPrzelogować na: " + newLog + " w trybie kontroli?", 5);
                                 } else {
                                     customToast("Zalogowanie niemożliwe w trakcie kontroli!");
@@ -1444,11 +1738,15 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 if (newLog.contains("KNT")) {
                                     if (started) {
+                                        unregisterReceiver(breceive);
                                         showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + " w trybie kontroli?", 9);
+
                                     } else {
-                                        showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.");
+                                        unregisterReceiver(breceive);
+                                        showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
                                     }
                                 } else {
+                                    unregisterReceiver(breceive);
                                     showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + "?", 8);
                                 }
 
@@ -1466,42 +1764,77 @@ public class MainActivity extends AppCompatActivity {
                     } else if (intent.getIntExtra("errortype", 1) == 1) {
                         showDialogCust("Błąd!", "Nie można pobrać obrazu.\nSprawdź połączenie sieciowe");
                     }
-                }else if (intent.getAction().equals("akcja9")) {
+                } else if (intent.getAction().equals("akcja9")) {
                     progressDialog = new ProgressDialog(context);
                     progressDialog.setCancelable(false);
                     progressDialog.setMessage("Logowanie...");
                     progressDialog.show();
-                }else if (intent.getAction().equals("akcja10")) {
+                } else if (intent.getAction().equals("akcja10")) {
                     progressDialog.dismiss();
                     String tag = intent.getStringExtra("tagNfc");
-                    int res = intent.getIntExtra("result",-1);
+                    int res = intent.getIntExtra("result", -1);
                     TextView tvLogged = (TextView) findViewById(R.id.textView6);
-
-                    if(res==0){
+                    if (res == 0) {
                         if (tag.contains("KNT")) {
                             tvLogged.setText(tag);
                             if (comm) {
-                                showDialogCust("Login", "Zalogowałeś się jako " + tag + "\n\n         TRYB KONTROLI");
+                                unregisterReceiver(breceive);
+                                showDialogCust("Login", "Zalogowałeś się jako " + tag + "\n\n         TRYB KONTROLI", 1);
                             }
                             savedTryb = trybPomiaru;
                             ustawTryb(6);
+                            if (!kogut.equals("2")) {
+                                kogut = "2";
+                                if (usbService != null) { // if UsbService was correctly binded, Send data
+                                    usbService.write(kogut.getBytes());
+                                    //customToast("USB binded!!");
+                                    //customToast("usb service toString:  "+usbService.toString());
+                                    //customToast("usb data:  "+data);
+                                }
+                            }
                             logged = true;
 
                         } else {
                             tvLogged.setText(tag);
                             if (comm) {
-                                showDialogCust("Login", "Zalogowałeś się jako " + tag);
+                                unregisterReceiver(breceive);
+                                showDialogCust("Login", "Zalogowałeś się jako " + tag, 1);
 
                             }
                             logged = true;
                         }
-                    }else if(res==1){
-                        showDialogCust("Odmowa", "Nie masz uprawnień do zalogowania się na tym urządzeniu");
-                    }else if(res==2){
-                        showDialogCust("Błąd", "Użytkownik " + tag + " nie istnieje w bazie");
-                    }else if(res==3){
-                        showDialogCust("Błąd", "Problem z potwierdzeniem uprawnień.\nSprawdź połączenie sieciowe i VPN.");
+                    } else if (res == 1) {
+                        unregisterReceiver(breceive);
+                        showDialogCust("Odmowa", "Nie masz uprawnień do zalogowania się na tym urządzeniu", 1);
+                    } else if (res == 2) {
+                        unregisterReceiver(breceive);
+                        showDialogCust("Błąd", "Użytkownik " + tag + " nie istnieje w bazie", 1);
+                    } else if (res == 3) {
+                        unregisterReceiver(breceive);
+                        showDialogCust("Błąd", "Problem z potwierdzeniem uprawnień.\nSprawdź połączenie sieciowe i VPN.", 1);
                     }
+                } else if (intent.getAction().equals("akcja11")) {
+                    if (!kogut.equals("2")) {
+                        kogut = "2";
+                        if (usbService != null) { // if UsbService was correctly binded, Send data
+                            usbService.write(kogut.getBytes());
+                            //customToast("USB binded!!");
+                            //customToast("usb service toString:  "+usbService.toString());
+                            //customToast("usb data:  "+data);
+                        }
+                    }
+                } else if (intent.getAction().equals("akcja12")) {
+                    if (!kogut.equals("3")) {
+                        kogut = "3";
+                        if (usbService != null) { // if UsbService was correctly binded, Send data
+                            usbService.write(kogut.getBytes());
+                            //customToast("USB binded!!");
+                            //customToast("usb service toString:  "+usbService.toString());
+                            //customToast("usb data:  "+data);
+                        }
+                    }
+                } else if (intent.getAction().equals("akcja13")) {
+                    customToast("Brak obrazu");
                 }
             }
         }
@@ -1566,14 +1899,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void koniecpomiarow() {
-        EditText editText = (EditText) findViewById(R.id.editText1);
-        liczSesja = 0;
-        showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary.");
-        editText.setText("");
-        TextView tvpr = (TextView) findViewById(R.id.tvpoz);
-        tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
-        cdt = new CountDown(MILLISMAIN, 1000, this);
-        cdt.start();
+        if (stopProc) {
+            EditText editText = (EditText) findViewById(R.id.editText1);
+            liczSesja = 0;
+            showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary. \nZatrzymaj proces z powodu nieprawidłowych elementów.");
+            editText.setText("");
+            TextView tvpr = (TextView) findViewById(R.id.tvpoz);
+            tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
+        } else {
+            EditText editText = (EditText) findViewById(R.id.editText1);
+            liczSesja = 0;
+            showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary.");
+            editText.setText("");
+            TextView tvpr = (TextView) findViewById(R.id.tvpoz);
+            tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
+            cdt = new CountDown(MILLISMAIN, 1000, this);
+            cdt.start();
+        }
+
 
     }
 
@@ -1581,7 +1924,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvpozost = (TextView) findViewById(R.id.tvpoz);
         Button btnStop = (Button) findViewById(R.id.stopprocbtn);
         Button btnStart = (Button) findViewById(R.id.startprocbtn);
-        TextView indtxt = (TextView) findViewById(R.id.indextv);
+        TextView indtv = (TextView) findViewById(R.id.indextv);
         Button indbtn = (Button) findViewById(R.id.zmianaindbtn);
         final TextView wym = (TextView) findViewById(R.id.wymiartv);
         final TextView tplus = (TextView) findViewById(R.id.tplustv);
@@ -1601,7 +1944,7 @@ public class MainActivity extends AppCompatActivity {
                         started = false;
                         ustawTryb(0);
                         indbtn.setEnabled(true);
-
+                        indtv.setClickable(true);
                         TextView textView2 = (TextView) findViewById(R.id.pomiartv);
                         textView2.setText("0.0");
                         //wym.setText("-");
@@ -1614,10 +1957,12 @@ public class MainActivity extends AppCompatActivity {
                         liczProbKalib = 1;
                         liczProbKont = 1;
                         licznikPomiarowTmp1 = 1;
+                        trybKalibLicz = 0;
+                        trybKalibLiczPom = 0;
                         tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
 
                         trybPomiaru = -1;
-                        if(cdt!=null){
+                        if (cdt != null) {
                             cdt.cancel();
                         }
                         textView8.setText("00:00:00");
@@ -1629,7 +1974,7 @@ public class MainActivity extends AppCompatActivity {
                         btnStart.setVisibility(View.VISIBLE);
                         btnStop.setVisibility(View.INVISIBLE);
                     } else {
-                        showDialogCustYN("Zakończyc proces dla indeksu " + indtxt.getText().toString() + "?", 1);
+                        showDialogCustYN("Zakończyc proces dla indeksu " + indtv.getText().toString() + "?", 1);
                     }
                 } else {
                     customToast("Nie rozpoczęto jeszcze procesu");
@@ -1641,8 +1986,7 @@ public class MainActivity extends AppCompatActivity {
                 started = false;
                 ustawTryb(0);
                 indbtn.setEnabled(true);
-                tabLay1 = (TableLayout) findViewById(R.id.tabLay);
-                tabLay1.removeAllViews();
+                indtv.setClickable(true);
                 TextView textView2 = (TextView) findViewById(R.id.pomiartv);
                 textView2.setText("0.0");
                 //wym.setText("-");
@@ -1655,9 +1999,10 @@ public class MainActivity extends AppCompatActivity {
                 liczProbKalib = 1;
                 liczProbKont = 1;
                 licznikPomiarowTmp1 = 1;
-
+                trybKalibLicz = 0;
+                trybKalibLiczPom = 0;
                 trybPomiaru = -1;
-                if(cdt!=null){
+                if (cdt != null) {
                     cdt.cancel();
                 }
                 textView8.setText("00:00:00");
@@ -1675,4 +2020,88 @@ public class MainActivity extends AppCompatActivity {
             showDialogCust("Błąd", "Zaloguj się");
         }
     }
+
+    //obsluga USB
+    private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
+        if (!UsbService.SERVICE_CONNECTED) {
+            Intent startService = new Intent(this, service);
+            if (extras != null && !extras.isEmpty()) {
+                Set<String> keys = extras.keySet();
+                for (String key : keys) {
+                    String extra = extras.getString(key);
+                    startService.putExtra(key, extra);
+                }
+            }
+            startService(startService);
+        }
+        Intent bindingIntent = new Intent(this, service);
+        bindService(bindingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void setFilters() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UsbService.ACTION_USB_PERMISSION_GRANTED);
+        filter.addAction(UsbService.ACTION_NO_USB);
+        filter.addAction(UsbService.ACTION_USB_DISCONNECTED);
+        filter.addAction(UsbService.ACTION_USB_NOT_SUPPORTED);
+        filter.addAction(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED);
+        registerReceiver(mUsbReceiver, filter);
+    }
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
+
+        MyHandler(MainActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case UsbService.MESSAGE_FROM_SERIAL_PORT:
+                    break;
+                case UsbService.CTS_CHANGE:
+                    //Toast.makeText(mActivity.get(), "CTS_CHANGE",Toast.LENGTH_LONG).show();
+                    break;
+                case UsbService.DSR_CHANGE:
+                    // Toast.makeText(mActivity.get(), "DSR_CHANGE",Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }
+    }
+
+    private final ServiceConnection usbConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName arg0, IBinder arg1) {
+            usbService = ((UsbService.UsbBinder) arg1).getService();
+            usbService.setHandler(mHandler);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            usbService = null;
+        }
+    };
+    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (Objects.requireNonNull(intent.getAction())) {
+                case UsbService.ACTION_USB_PERMISSION_GRANTED: // USB PERMISSION GRANTED
+                    //Toast.makeText(context, "USB Ready", Toast.LENGTH_SHORT).show();
+                    break;
+                case UsbService.ACTION_USB_PERMISSION_NOT_GRANTED: // USB PERMISSION NOT GRANTED
+                    //Toast.makeText(context, "USB Permission not granted", Toast.LENGTH_SHORT).show();
+                    break;
+                case UsbService.ACTION_NO_USB: // NO USB CONNECTED
+                    ///Toast.makeText(context, "No USB connected", Toast.LENGTH_SHORT).show();
+                    break;
+                case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
+                    //Toast.makeText(context, "USB disconnected", Toast.LENGTH_SHORT).show();
+                    break;
+                case UsbService.ACTION_USB_NOT_SUPPORTED: // USB NOT SUPPORTED
+                    // Toast.makeText(context, "USB device not supported", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 }

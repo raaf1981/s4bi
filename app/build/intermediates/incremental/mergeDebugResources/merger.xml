@@ -2098,13 +2098,13 @@
         <item name="android:buttonBarPositiveButtonStyle">@style/CustomAlertButtonY</item>
         <item name="android:icon">@android:drawable/ic_dialog_alert</item>
     </style><style name="CustomAlertButtonY" parent="@android:style/Theme.Material.Dialog.Alert">
-        <item name="android:textSize">30dp</item>
+        <item name="android:textSize">36dp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@android:color/holo_blue_bright</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:layout_marginRight">5dp</item>
     </style><style name="CustomAlertButtonN" parent="@android:style/Theme.Material.Dialog.Alert">
-        <item name="android:textSize">30dp</item>
+        <item name="android:textSize">36dp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@android:color/holo_blue_bright</item>
         <item name="android:background">@android:color/transparent</item>
@@ -2115,7 +2115,7 @@
         <item name="android:buttonBarPositiveButtonStyle">@style/CustomAlertButton</item>
         <item name="android:icon">@android:drawable/ic_dialog_alert</item>
     </style><style name="CustomAlertButton" parent="@android:style/Theme.Material.Dialog.Alert">
-        <item name="android:textSize">30dp</item>
+        <item name="android:textSize">36dp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@android:color/holo_blue_bright</item>
         <item name="android:background">@android:color/transparent</item>

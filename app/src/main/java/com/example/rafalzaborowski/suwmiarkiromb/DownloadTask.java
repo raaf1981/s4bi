@@ -34,7 +34,7 @@ public class DownloadTask {
 
     public DownloadTask(int picNum,Activity act) {
         this.context = (Context) act.getBaseContext();
-        downloadUrl = "http://app.s4bi.pl/miarki/index.php/api/rest/pic/"+picNum;
+        downloadUrl = "http://192.168.1.33:81/qcontrol/index.php/api/rest/pic/"+picNum;
         downloadFileName = "index.pdf";
         new DownloadingTask().execute();
     }

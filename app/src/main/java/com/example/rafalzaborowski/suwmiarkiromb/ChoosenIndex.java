@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
@@ -275,9 +276,7 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
         choosenInd = Arrays.asList(indexes).indexOf(data);
 
         if(!tvMain.getText().equals(indexesTMP[choosenInd])) {
-            if (mPopupWindow != null) {
-                mPopupWindow.dismiss();
-            }
+
 
             dismiss();
 
@@ -309,13 +308,35 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
             tvpoz.setText(String.valueOf(Integer.parseInt(indIncome[choosenInd][6]) * 10));
             tabLay1.removeAllViews();
             downloadPDF();
+
+        }else{
+            dismiss();
         }
 
     }
 
     private void downloadPDF(){
-        MainActivity activity = (MainActivity) getActivity();
-        new DownloadTask(Integer.parseInt(indIncome[choosenInd][1]), activity);
+        try{
+            MainActivity activity = (MainActivity) getActivity();
+            if(indIncome[choosenInd][1].equals("null")){
+                Intent i = new Intent("akcja13");
+                Context context = getActivity().getBaseContext();
+                context.sendBroadcast(i);
+                ImageView iv = (ImageView) getActivity().findViewById(R.id.image);
+                iv.setPadding(50,130,50,130);
+                iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                iv.setImageResource(R.drawable.logo_romb_biale);
+            }else {
+                new DownloadTask(Integer.parseInt(indIncome[choosenInd][1]), activity);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            ImageView iv = (ImageView) getActivity().findViewById(R.id.image);
+            iv.setPadding(50,130,50,130);
+            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+            iv.setImageResource(R.drawable.logo_romb_biale);
+        }
+
 
     }
 
