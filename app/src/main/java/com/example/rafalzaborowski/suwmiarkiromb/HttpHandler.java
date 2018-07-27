@@ -8,6 +8,7 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
+import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -27,14 +29,14 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class HttpHandler {
     private static final String ADRESTEST = "app.s4bi", BAZATEST = "miarki", ADRESMAIN = "192.168.1.33:81", BAZAMAIN = "qcontrol";
-
+    private static final int HTTPTIMEOUT = 3000;
     private static String userName = "admin";
     private static String passw = "RSZx9Hqz8B";
     private static String adres = ADRESMAIN;
     private static String baza = BAZAMAIN;
-    private static String urlConGetIndexes = "http://"+ adres +"/"+baza+"/index.php/api/rest/indeks/";
-    private static String urlConPostNewIndex = "http://"+ adres +"/"+baza+"/index.php/api/rest/pomiar";
-    private static String urlConPostLogin = "http://"+ adres +"/"+baza+"/index.php/api/rest/login";
+    private static String urlConGetIndexes = "http://" + adres + "/" + baza + "/index.php/api/rest/indeks/";
+    private static String urlConPostNewIndex = "http://" + adres + "/" + baza + "/index.php/api/rest/pomiar";
+    private static String urlConPostLogin = "http://" + adres + "/" + baza + "/index.php/api/rest/login";
     private static int flags = Base64.NO_WRAP | Base64.URL_SAFE;
     private static byte[] upbyte = (userName + ":" + passw).getBytes();
 
@@ -43,6 +45,7 @@ public class HttpHandler {
         try {
             URL getEndpoint = new URL(urlConGetIndexes);
             HttpURLConnection myConnection = (HttpURLConnection) getEndpoint.openConnection();
+            myConnection.setConnectTimeout(HTTPTIMEOUT);
             String encoded = Base64.encodeToString(upbyte, flags);
             myConnection.setRequestProperty("Authorization", "Basic " + encoded);
             System.out.println("respone code = " + myConnection.getResponseCode());
@@ -65,12 +68,13 @@ public class HttpHandler {
     }
 
 
-    public static int doPost(String newIndex){
-        int response=-1;
+    public static int doPost(String newIndex) {
+        int response = -1;
         try {
 
             URL getEndpoint = new URL(urlConPostNewIndex);
             HttpURLConnection myConnection = (HttpURLConnection) getEndpoint.openConnection();
+            myConnection.setConnectTimeout(HTTPTIMEOUT);
             String encoded = Base64.encodeToString(upbyte, flags);
             myConnection.setDoOutput(true);
 
@@ -94,11 +98,12 @@ public class HttpHandler {
 
     }
 
-    public static InputStreamReader doPostLogin(String newLog){
+    public static InputStreamReader doPostLogin(String newLog) {
         try {
 
             URL getEndpoint = new URL(urlConPostLogin);
             HttpURLConnection myConnection = (HttpURLConnection) getEndpoint.openConnection();
+            myConnection.setConnectTimeout(HTTPTIMEOUT);
             String encoded = Base64.encodeToString(upbyte, flags);
             myConnection.setDoOutput(true);
 
@@ -108,27 +113,29 @@ public class HttpHandler {
             myConnection.getOutputStream().write(newLog.getBytes());
             System.out.println("response code = " + myConnection.getResponseCode());
             System.out.println("connection string  = " + urlConPostLogin);
-            if(myConnection.getResponseCode()==200){
+            if (myConnection.getResponseCode() == 200) {
                 InputStream responseBody = myConnection.getInputStream();
                 InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
                 return responseBodyReader;
 
-            }else if (myConnection.getResponseCode()==404){
+            } else if (myConnection.getResponseCode() == 404) {
                 InputStream responseBody = myConnection.getErrorStream();
                 InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
                 return responseBodyReader;
 
-            }else {
+            } else {
 
             }
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
-
             e.printStackTrace();
+
+
         }
         return null;
+
 
     }
 

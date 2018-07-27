@@ -44,40 +44,35 @@ public class CountDown extends CountDownTimer {
             }
 
         } else {
-
             if (seconds > 59) {
+                textView5.setTextColor(Color.parseColor("#ff6600"));
+                textView8.setTextColor(Color.parseColor("#ff6600"));
                 if(seconds==120) {
+                    textView5.setTextColor(Color.parseColor("#ff6600"));
+                    textView8.setTextColor(Color.parseColor("#ff6600"));
                     Intent i = new Intent("akcja11");
                     context.sendBroadcast(i);
                 }
-                textView5.setTextColor(Color.parseColor("#ff6600"));
-                textView8.setTextColor(Color.parseColor("#ff6600"));
                 if ((seconds - (minutes * 60)) < 10) {
-
                     textView8.setText("00:0" + String.valueOf(minutes) + ":0" + String.valueOf(seconds - (minutes * 60)));
                 } else {
-                    textView5.setTextColor(Color.RED);
-                    textView8.setTextColor(Color.RED);
                     textView8.setText("00:0" + String.valueOf(minutes) + ":" + String.valueOf(seconds - (minutes * 60)));
                 }
             } else {
                 if (seconds < 10) {
-
                     textView5.setTextColor(Color.RED);
                     textView8.setTextColor(Color.RED);
                     textView8.setText("00:00:0" + String.valueOf(seconds));
                 } else {
                     if(seconds==10){
+                        textView5.setTextColor(Color.RED);
+                        textView8.setTextColor(Color.RED);
                         Intent i2 = new Intent("akcja12");
                         context.sendBroadcast(i2);
                     }
-                    textView5.setTextColor(Color.RED);
-                    textView8.setTextColor(Color.RED);
                     textView8.setText("00:00:" + String.valueOf(seconds));
                 }
-
             }
-
         }
     }
 
