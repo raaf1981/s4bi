@@ -28,12 +28,12 @@ import java.nio.charset.StandardCharsets;
 import javax.net.ssl.HttpsURLConnection;
 
 public class HttpHandler {
-    private static final String ADRESTEST = "app.s4bi", BAZATEST = "miarki", ADRESMAIN = "192.168.1.33:81", BAZAMAIN = "qcontrol";
+    private static final String ADRESTEST = "192.168.1.30", BAZATEST = "miarki", ADRESMAIN = "192.168.1.33:81", BAZAMAIN = "qcontrol", ADRESPROD = "";
     private static final int HTTPTIMEOUT = 3000;
     private static String userName = "admin";
     private static String passw = "RSZx9Hqz8B";
-    private static String adres = ADRESMAIN;
-    private static String baza = BAZAMAIN;
+    private static String adres = ADRESTEST;
+    private static String baza = BAZATEST;
     private static String urlConGetIndexes = "http://" + adres + "/" + baza + "/index.php/api/rest/indeks/";
     private static String urlConPostNewIndex = "http://" + adres + "/" + baza + "/index.php/api/rest/pomiar";
     private static String urlConPostLogin = "http://" + adres + "/" + baza + "/index.php/api/rest/login";

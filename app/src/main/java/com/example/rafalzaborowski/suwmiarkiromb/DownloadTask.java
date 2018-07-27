@@ -20,9 +20,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class DownloadTask {
-
+    private String ADRESTEST = "192.168.1.30", BAZATEST = "miarki", ADRESMAIN = "192.168.1.33:81", BAZAMAIN = "qcontrol", ADRESPROD = "";
     private static String userName = "admin";
     private static String passw = "RSZx9Hqz8B";
+    private  String adres = ADRESTEST;
+    private  String baza = BAZATEST;
     private static final String TAG = "Download Task";
     private Context context;
     private Context context2;
@@ -34,7 +36,7 @@ public class DownloadTask {
 
     public DownloadTask(int picNum,Activity act) {
         this.context = (Context) act.getBaseContext();
-        downloadUrl = "http://192.168.1.33:81/qcontrol/index.php/api/rest/pic/"+picNum;
+        downloadUrl = "http://"+adres+"/"+baza+"/index.php/api/rest/pic/"+picNum;
         downloadFileName = "index.pdf";
         new DownloadingTask().execute();
     }

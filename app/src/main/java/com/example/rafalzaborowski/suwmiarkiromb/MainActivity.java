@@ -42,9 +42,11 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,6 +58,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
+
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
@@ -77,15 +80,15 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     CountDownTimer cdt;
     private String[] newRowMeasure;
-    private int licznikPomiarowGlowny = 1, trybKalibLicz = 0, trybKalibLiczPom = 0, trybNormalLicz = 0, trybNormalLiczPom = 0, liczSesja = 0, liczProbKalib = 1, liczProbKont = 1;
+    private int licznikPomiarowGlowny = 1, trybKalibLicz = 0, trybKalibLiczPom = 0, trybNormalLicz = 0, trybNormalLiczPom = 0, liczSesja = 0, liczProbKalib = 1, liczProbKont = 1, trybKalibLiczMain = 0;
     private int liczProb = 1, indexPrev;
     private int licznikPomiarowTmp1 = 1, licznikPomiarowTmp1Kal = 1, licznikPomiarowTmp1Kont = 1;
     private boolean pomiarOk, timerStart;
     private String[] headerRow = {"ID", "Godzina", "Indeks", "Wymiar", "T+", "T-", "Pomiar", "Punkt", "Tryb"};
     private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT", "KNT"};
     private String pomiarAktualny, kogut = "1", savedLogin = "----";
-    private String newIndexPost,currentLog="----";
-    private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obróbka 1", "Obróbka 2", "Obróbka 3"};
+    private String newIndexPost, currentLog = "----";
+    private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obr 1", "Obr 2", "Obr 3"};
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
     private int trybPomiaru = -1, savedTryb = -1;
@@ -264,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
                                 editText.requestFocus();
                                 break;
                             case 5:
+
                                 break;
                             case 6:
                                 try {
@@ -280,9 +284,12 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     newIndexPost = prepNewIndPost(textView2.getText().toString());
                                     zapiszWynik();
-                                }catch (NumberFormatException e) {
+                                } catch (NumberFormatException e) {
                                     showDialogCust("Błąd", "Błędny pomiar");
                                 }
+                                break;
+                            case 7:
+                                showDialogCust("Uwaga", "Należy zatrzymać proces naciskając przycisk STOP PROCES.");
                                 break;
                             default:
                                 editText.requestFocus();
@@ -320,25 +327,25 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(spinnerArrayAdapter);
         spinner.setPrompt("Miejsce pomiaru");
         spinner.setSelection(0);
+        //spinner.setClickable(false);
         //spinner.setSelection(0);
+
 
     }
 
     public void testMet(View v) {
-        if (strOfInd == null) {
-            pobierzIndeksy();
-            showDialogCust("Błąd", "Nie można pobrać bazy indeksów.\nWystąpił problem z komunikacją.\nSkontaktuj się z administratorem.");
-
+        if (!logged) {
+            showDialogCust("Błąd", "Zaloguj się!");
         } else {
-            if (!logged) {
-                showDialogCust("Błąd", "Zaloguj się!");
+            if (strOfInd == null) {
+                pobierzIndeksy();
+                showDialogCust("Błąd", "Nie można pobrać bazy indeksów.\nWystąpił problem z komunikacją.\nSkontaktuj się z administratorem.");
+
             } else {
                 DialogFragment newFragment = new ChoosenIndex();
                 newFragment.show(getSupportFragmentManager(), "choosen");
             }
-
         }
-        //Toast.makeText(MainActivity.this, "buttonPressed", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -398,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(50, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(32, 2, 17, 2);
+                        newTV.setPadding(30, 2, 17, 2);
                         break;
                 }
             } else if (licznikPomiarowGlowny >= 11 && licznikPomiarowGlowny < 100) {
@@ -428,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(49, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(32, 2, 17, 2);
+                        newTV.setPadding(26, 2, 17, 2);
                         break;
                 }
             } else {
@@ -458,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(45, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(40, 2, 17, 2);
+                        newTV.setPadding(35, 2, 17, 2);
                         break;
                 }
             }
@@ -585,7 +592,9 @@ public class MainActivity extends AppCompatActivity {
 
     private String prepNewIndPost(String pomiarAkt) {
         TextView tvloggedp = (TextView) findViewById(R.id.textView6);
+        Spinner spin = (Spinner) findViewById(R.id.spinner);
         String tp = String.valueOf(trybPomiaru);
+        String maszyna = spin.getSelectedItem().toString();
         int licznikPomiarowTmpX = 0;
         if (trybPomiaru == 0) {
             //tp = "00";
@@ -595,7 +604,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (trybPomiaru == 6) {
             licznikPomiarowTmpX = licznikPomiarowTmp1Kont;
         }
-        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmpX) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\"Piła1\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\",\"tryb\":\"" + tp + "\"}";
+        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmpX) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\""+maszyna+"\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\",\"tryb\":\"" + tp + "\"}";
         return postStr;
     }
 
@@ -662,7 +671,24 @@ public class MainActivity extends AppCompatActivity {
         Button btnCtrl = (Button) findViewById(R.id.btnControl);
 
         switch (tryb) {
-            case -1: //nieustawiony
+            case -1: //nieustalony
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case 0: //zwykły
                 switch (trybPomiaru) {
@@ -847,6 +873,27 @@ public class MainActivity extends AppCompatActivity {
                 trybPomiaru = 6;
                 blinkingControl();
                 break;
+            case 7: //stop proces
+                switch (trybPomiaru) {
+                    case -1:
+                        break;
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        showDialogCust("Uwaga","Kalibracja nie zakończyła się powodzeniem.\nZatrzymaj proces.");
+                        blinkingAlertStop();
+                        break;
+                    default:
+                        break;
+                }
+
+
             default:
                 break;
         }
@@ -1055,11 +1102,11 @@ public class MainActivity extends AppCompatActivity {
                             zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false);
                             registerReceiver(breceive, filter);
                         } else if (action == 6) {
-                            if(!savedLogin.equals("----")){
+                            if (!savedLogin.equals("----")) {
                                 tvloggedp.setText(savedLogin);
-                                savedLogin="----";
-                                logged=true;
-                            }else {
+                                savedLogin = "----";
+                                logged = true;
+                            } else {
                                 tvloggedp.setText("----");
 
                                 logged = false;
@@ -1485,6 +1532,7 @@ public class MainActivity extends AppCompatActivity {
                             case 3:
                                 break;
                             case 4:
+                                trybKalibLiczMain++;
                                 if (trybKalibLiczPom == 0) {
                                     elemOk = true;
                                 }
@@ -1493,9 +1541,10 @@ public class MainActivity extends AppCompatActivity {
                                     if (trybKalibLiczPom == iloscPunktow && elemOk) {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
-                                        if (trybKalibLicz == 1) {
+                                        if (trybKalibLicz == 3) {
                                             kalibEnd = true;
                                             trybKalibLicz = 0;
+                                            trybKalibLiczMain = 0;
                                             elemOk = true;
                                             break;
                                         }
@@ -1511,6 +1560,7 @@ public class MainActivity extends AppCompatActivity {
                                     elemOk = false;
                                     trybKalibLicz = 0;
                                 }
+
                                 editText.requestFocus();
                                 break;
                             case 5:
@@ -1526,6 +1576,11 @@ public class MainActivity extends AppCompatActivity {
                         if (kalibEnd) {
                             ustawTryb(0);
                             kalibEnd = false;
+                        }
+                        if(trybKalibLiczMain==50){
+                            ustawTryb(-1);
+                            kalibEnd=false;
+                            trybKalibLiczMain=0;
                         }
                         editText.requestFocus();
                         svx.postDelayed(new Runnable() {
@@ -1580,7 +1635,7 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 if (newLog.contains("KNT")) {
                                     if (started) {
-                                        savedLogin=currentLog;
+                                        savedLogin = currentLog;
                                         unregisterReceiver(breceive);
                                         showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + " w trybie kontroli?", 9);
 
@@ -1702,9 +1757,13 @@ public class MainActivity extends AppCompatActivity {
     private void blinkingAlertStop() {
         // btext = new BlinkingText(this);
         TextView tvblink = (TextView) findViewById(R.id.textView11);
-        tvblink.clearAnimation();
-        tvblink.setVisibility(View.INVISIBLE);
-
+        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(700); //You can manage the time of the blink with this parameter
+        anim.setStartOffset(20);
+        anim.setRepeatMode(Animation.REVERSE);
+        anim.setRepeatCount(Animation.INFINITE);
+        tvblink.setVisibility(View.VISIBLE);
+        tvblink.startAnimation(anim);
     }
 
     private void blinkingControl() {

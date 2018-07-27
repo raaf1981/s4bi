@@ -380,7 +380,7 @@
         android:layout_width="wrap_content"
         android:layout_height="54dp"
         android:layout_x="0dp"
-        android:layout_y="7dp"
+        android:layout_y="0dp"
         android:src="@drawable/go_back_logo_cut" />
 
     <RelativeLayout
@@ -392,7 +392,7 @@
 
         <Spinner
             android:id="@+id/spinner"
-            android:layout_width="118dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
