@@ -63,7 +63,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Main Activity", MIEJSCE = "Pila";
-    private static final int MILLISMAIN = 15000;
+    private static final int MILLISMAIN = 1200000;
     public static String[][] strOfInd;
     public static int choosenInd;
     InputStreamReader indeksy, odpowiedz;
@@ -668,6 +668,7 @@ public class MainActivity extends AppCompatActivity {
         TextView trybText = (TextView) findViewById(R.id.textView3);
         TextView tvpozlicz = (TextView) findViewById(R.id.tvpoz);
         TextView tvpoz = (TextView) findViewById(R.id.textView4);
+        EditText edittext = (EditText) findViewById(R.id.editText1);
         Button btnCtrl = (Button) findViewById(R.id.btnControl);
 
         switch (tryb) {
@@ -698,7 +699,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1:
                         //liczProb = 1;
-                        showDialogCust("Uwaga", "Zmierzono 3 poprawne elementy w punkcie krytycznym\nSystem w trybie normalnym");
+                        showDialogCust("Uwaga", "Zmierzono 3 poprawne elementy w punkcie krytycznym.\nSystem w trybie normalnym.");
                         break;
                     case 2:
                         break;
@@ -707,7 +708,7 @@ public class MainActivity extends AppCompatActivity {
                     case 4:
                         liczProbKalib = 1;
                         if (started) {
-                            showDialogCust("Uwaga", "Kalibracja zakończona poprawnie\nSystem w trybie normalnym");
+                            showDialogCust("Uwaga", "Kalibracja zakończona poprawnie.\nSystem w trybie normalnym.");
                             cdt.start();
                         }
 
@@ -878,6 +879,10 @@ public class MainActivity extends AppCompatActivity {
                     case -1:
                         break;
                     case 0:
+                        showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
+                        stopProc = true;
+                        blinkingAlertStop();
+                        //edittext.setEnabled(false);
                         break;
                     case 1:
                         break;
@@ -886,8 +891,9 @@ public class MainActivity extends AppCompatActivity {
                     case 3:
                         break;
                     case 4:
-                        showDialogCust("Uwaga","Kalibracja nie zakończyła się powodzeniem.\nZatrzymaj proces.");
+                        showDialogCust("Uwaga","Kalibracja niepoprawna.\nZatrzymaj proces.");
                         blinkingAlertStop();
+                        //edittext.setEnabled(false);
                         break;
                     default:
                         break;
@@ -1497,10 +1503,7 @@ public class MainActivity extends AppCompatActivity {
                                         elemOk = true;
                                         if (trybNormalLicz == 3) {
                                             trybNormalLicz = 0;
-                                            showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
-                                            stopProc = true;
-                                            blinkingAlertStop();
-                                            //ustawTryb(2);
+                                            ustawTryb(7);
                                         }
                                     } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
                                         trybNormalLiczPom = 0;
@@ -1513,10 +1516,7 @@ public class MainActivity extends AppCompatActivity {
                                         elemOk = true;
                                         if (trybNormalLicz == 3) {
                                             trybNormalLicz = 0;
-                                            showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
-                                            stopProc = true;
-                                            blinkingAlertStop();
-                                            //ustawTryb(2);
+                                            ustawTryb(7);
                                         }
                                     } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
                                         trybNormalLiczPom = 0;
@@ -1541,7 +1541,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (trybKalibLiczPom == iloscPunktow && elemOk) {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
-                                        if (trybKalibLicz == 3) {
+                                        if (trybKalibLicz == 10) {
                                             kalibEnd = true;
                                             trybKalibLicz = 0;
                                             trybKalibLiczMain = 0;
@@ -1575,12 +1575,12 @@ public class MainActivity extends AppCompatActivity {
 
                         if (kalibEnd) {
                             ustawTryb(0);
-                            kalibEnd = false;
                         }
-                        if(trybKalibLiczMain==50){
-                            ustawTryb(-1);
+                        if(trybKalibLiczMain==(50*iloscPunktow)&&!kalibEnd){
+                            ustawTryb(7);
+                            stopProc=true;
+                        }else{
                             kalibEnd=false;
-                            trybKalibLiczMain=0;
                         }
                         editText.requestFocus();
                         svx.postDelayed(new Runnable() {
@@ -1660,7 +1660,7 @@ public class MainActivity extends AppCompatActivity {
                     if (intent.getIntExtra("errortype", 1) == 0) {
                         showDialogCust("Błąd!", "Nie można zapisać obrazu.\nSprawdź uprawnienia aplikacji w ustawieniach systemu.");
                     } else if (intent.getIntExtra("errortype", 1) == 1) {
-                        showDialogCust("Błąd!", "Nie można pobrać obrazu.\nSprawdź połączenie sieciowe");
+                        showDialogCust("Błąd!", "Nie można pobrać obrazu.\nSprawdź połączenie sieciowe.");
                     }
                 } else if (intent.getAction().equals("akcja9")) {
                     progressDialog = new ProgressDialog(context);
@@ -1704,10 +1704,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } else if (res == 1) {
                         unregisterReceiver(breceive);
-                        showDialogCust("Odmowa", "Nie masz uprawnień do zalogowania się na tym urządzeniu", 1);
+                        showDialogCust("Odmowa", "Nie masz uprawnień do zalogowania się na tym urządzeniu.", 1);
                     } else if (res == 2) {
                         unregisterReceiver(breceive);
-                        showDialogCust("Błąd", "Użytkownik " + tag + " nie istnieje w bazie", 1);
+                        showDialogCust("Błąd", "Użytkownik " + tag + " nie istnieje w bazie.", 1);
                     } else if (res == 3) {
                         unregisterReceiver(breceive);
                         showDialogCust("Błąd", "Problem z potwierdzeniem uprawnień.\nSprawdź połączenie sieciowe i VPN.", 1);
@@ -1807,6 +1807,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             EditText editText = (EditText) findViewById(R.id.editText1);
             liczSesja = 0;
+            trybNormalLicz=0;
+            trybNormalLiczPom=0;
             showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary.");
             editText.setText("");
             TextView tvpr = (TextView) findViewById(R.id.tvpoz);
@@ -1823,6 +1825,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnStop = (Button) findViewById(R.id.stopprocbtn);
         Button btnStart = (Button) findViewById(R.id.startprocbtn);
         TextView indtv = (TextView) findViewById(R.id.indextv);
+        EditText edittext = (EditText) findViewById(R.id.editText1);
         Button indbtn = (Button) findViewById(R.id.zmianaindbtn);
         final TextView wym = (TextView) findViewById(R.id.wymiartv);
         final TextView tplus = (TextView) findViewById(R.id.tplustv);
@@ -1839,6 +1842,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (started) {
                     if (stopProc) {
+                        //edittext.setEnabled(true);
                         started = false;
                         ustawTryb(0);
                         indbtn.setEnabled(true);
@@ -1857,6 +1861,7 @@ public class MainActivity extends AppCompatActivity {
                         licznikPomiarowTmp1 = 1;
                         trybKalibLicz = 0;
                         trybKalibLiczPom = 0;
+                        trybKalibLiczMain=0;
                         tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
 
                         trybPomiaru = -1;
@@ -1877,7 +1882,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     customToast("Nie rozpoczęto jeszcze procesu");
                 }
-
+                edittext.requestFocus();
                 //new BlinkingText(this);
 
             } else if (am.equals("manual")) {
@@ -1900,6 +1905,7 @@ public class MainActivity extends AppCompatActivity {
                 trybKalibLicz = 0;
                 trybKalibLiczPom = 0;
                 trybPomiaru = -1;
+                trybKalibLiczMain=0;
                 if (cdt != null) {
                     cdt.cancel();
                 }

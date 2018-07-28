@@ -227,7 +227,7 @@
 
     <EditText
         android:id="@+id/editText1"
-        android:layout_width="4dp"
+        android:layout_width="2dp"
         android:layout_height="79dp"
         android:layout_alignBaseline="@+id/pomiartv"
         android:layout_alignStart="@+id/pomiartv"
