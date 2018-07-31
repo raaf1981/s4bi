@@ -63,7 +63,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Main Activity", MIEJSCE = "Pila";
-    private static final int MILLISMAIN = 1200000;
+    private static final long MILLISMAIN = 180000;
     public static String[][] strOfInd;
     public static int choosenInd;
     InputStreamReader indeksy, odpowiedz;
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean pomiarOk, timerStart;
     private String[] headerRow = {"ID", "Godzina", "Indeks", "Wymiar", "T+", "T-", "Pomiar", "Punkt", "Tryb"};
     private String[] trybRow = {"CYKL", "KRYT", "WRF", "AWR", "KLB", "INT", "KNT"};
-    private String pomiarAktualny, kogut = "1", savedLogin = "----";
+    private String pomiarAktualny, kogut = "1", kogutSaved = "1", savedLogin = "----";
     private String newIndexPost, currentLog = "----";
     private String[] lista = new String[]{"Piła 1", "Piła 2", "Piła 3", "Piła 4", "Piła 5", "Piła 6", "Piła 7", "Obr 1", "Obr 2", "Obr 3"};
     private ProgressDialog progressDialog;
@@ -198,7 +198,11 @@ public class MainActivity extends AppCompatActivity {
                         currentDate = new Date();
                         switch (trybPomiaru) {
                             case -1: //nieoznaczony
-                                showDialogCust("Błąd", "Rozpocznij proces naciskając przycisk START PROCES.");
+                                if(!logged){
+                                    showDialogCust("Błąd", "Aby wykonać pomiary należy się zalogować");
+                                }else{
+                                    showDialogCust("Błąd", "Rozpocznij proces naciskając przycisk START PROCES.");
+                                }
                                 break;
                             case 0: //normalny
                                 if (!kogut.equals("1")) {
@@ -402,10 +406,10 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(20, 2, 17, 2);
                         break;
                     case 7:
-                        newTV.setPadding(50, 2, 17, 2);
+                        newTV.setPadding(46, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(30, 2, 17, 2);
+                        newTV.setPadding(28, 2, 17, 2);
                         break;
                 }
             } else if (licznikPomiarowGlowny >= 11 && licznikPomiarowGlowny < 100) {
@@ -465,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(45, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(35, 2, 17, 2);
+                        newTV.setPadding(33, 2, 17, 2);
                         break;
                 }
             }
@@ -720,8 +724,19 @@ public class MainActivity extends AppCompatActivity {
                         trybText.clearAnimation();
                         trybText.setTextColor(Color.WHITE);
                         btnCtrl.setVisibility(View.GONE);
-                        cdt = new CountDown(millis, 1000, this);
-                        cdt.start();
+                        if(millis>0) {
+                            cdt = new CountDown(millis, 1000, this);
+                            cdt.start();
+                        }
+                        if (!kogut.equals(kogutSaved)) {
+                            kogut = kogutSaved;
+                            if (usbService != null) { // if UsbService was correctly binded, Send data
+                                usbService.write(kogut.getBytes());
+                                //customToast("USB binded!!");
+                                //customToast("usb service toString:  "+usbService.toString());
+                                //customToast("usb data:  "+data);
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -819,6 +834,15 @@ public class MainActivity extends AppCompatActivity {
                         trybText.clearAnimation();
                         trybText.setTextColor(Color.WHITE);
                         btnCtrl.setVisibility(View.GONE);
+                        if (!kogut.equals("1")) {
+                            kogut = "1";
+                            if (usbService != null) { // if UsbService was correctly binded, Send data
+                                usbService.write(kogut.getBytes());
+                                //customToast("USB binded!!");
+                                //customToast("usb service toString:  "+usbService.toString());
+                                //customToast("usb data:  "+data);
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -857,6 +881,9 @@ public class MainActivity extends AppCompatActivity {
                     case -1:
                         break;
                     case 0:
+                        TextView tvblink = (TextView) findViewById(R.id.textView9);
+                        tvblink.clearAnimation();
+                        tvblink.setVisibility(View.INVISIBLE);
                         cdt.cancel();
                         break;
                     case 1:
@@ -1118,15 +1145,6 @@ public class MainActivity extends AppCompatActivity {
                                 logged = false;
                             }
                             ustawTryb(savedTryb);
-                            if (!kogut.equals("1")) {
-                                kogut = "1";
-                                if (usbService != null) { // if UsbService was correctly binded, Send data
-                                    usbService.write(kogut.getBytes());
-                                    //customToast("USB binded!!");
-                                    //customToast("usb service toString:  "+usbService.toString());
-                                    //customToast("usb data:  "+data);
-                                }
-                            }
 
                         } else if (action == 7) {
                             tvloggedp.setText("----");
@@ -1541,7 +1559,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (trybKalibLiczPom == iloscPunktow && elemOk) {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
-                                        if (trybKalibLicz == 10) {
+                                        if (trybKalibLicz == 3) {
                                             kalibEnd = true;
                                             trybKalibLicz = 0;
                                             trybKalibLiczMain = 0;
@@ -1682,8 +1700,9 @@ public class MainActivity extends AppCompatActivity {
                             }
                             savedTryb = trybPomiaru;
                             ustawTryb(6);
-                            if (!kogut.equals("2")) {
-                                kogut = "2";
+                            kogutSaved = kogut;
+                            if (!kogut.equals("4")) {
+                                kogut = "4";
                                 if (usbService != null) { // if UsbService was correctly binded, Send data
                                     usbService.write(kogut.getBytes());
                                     //customToast("USB binded!!");
