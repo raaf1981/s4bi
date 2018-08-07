@@ -48,7 +48,7 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
     public static int choosenInd;
     String tplus, tminus;
     private PopupWindow mPopupWindow;
-    private Button button1,button2,button3,button4,button5,button6,button7,button8,button9,button10,button11;
+    private Button button1,button2,button3,button4,button5,button6,button7,button8,button9,button10,button11,buttonP,buttonX;
     private ImageButton button12;
 
     @Override
@@ -137,6 +137,8 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
                 button9 = (Button) customView.findViewById(R.id.button9);
                 button10 = (Button) customView.findViewById(R.id.button10);
                 button11 = (Button) customView.findViewById(R.id.button11);
+                buttonP = (Button) customView.findViewById(R.id.buttonP);
+                buttonX = (Button) customView.findViewById(R.id.buttonX);
                 button12 = (ImageButton) customView.findViewById(R.id.button12);
                 button1.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -257,6 +259,26 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
                             sv.setQuery(sv.getQuery().subSequence(0, sv.getQuery().length() - 1), true);
                         }
                         //mPopupWindow.dismiss();
+                    }
+                });
+                buttonP.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(!sv.getQuery().equals("")){
+                            sv.setQuery(sv.getQuery()+"P",true);
+                        }else{
+                            sv.setQuery("P",true);
+                        }
+                    }
+                });
+                buttonX.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(!sv.getQuery().equals("")){
+                            sv.setQuery(sv.getQuery()+"X",true);
+                        }else{
+                            sv.setQuery("X",true);
+                        }
                     }
                 });
                 mPopupWindow.showAtLocation(mRelativeLayout, Gravity.NO_GRAVITY, 180,80);

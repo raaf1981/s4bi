@@ -4,7 +4,7 @@
             "outputFile": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/399e35a9a215c3cf668a7809688ac4d6/res/values-v23/values-v23.xml",
+                    "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/e05069a8b451debd6d0366a57c746329/res/values-v23/values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,19,32,33,34,35,36",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4",

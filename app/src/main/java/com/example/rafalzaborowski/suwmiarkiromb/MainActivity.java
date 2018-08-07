@@ -3,6 +3,7 @@ package com.example.rafalzaborowski.suwmiarkiromb;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -53,6 +54,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -63,7 +66,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Main Activity", MIEJSCE = "Pila";
-    private static final long MILLISMAIN = 180000;
+    private static final long MILLISMAIN = 1200000;
     public static String[][] strOfInd;
     public static int choosenInd;
     InputStreamReader indeksy, odpowiedz;
@@ -92,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
     private int trybPomiaru = -1, savedTryb = -1;
-    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = false, kalibEnd = false;
+    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = true, kalibEnd = false;
     public static boolean indexchoosen = false, stopProc = false, comm = false;
     FileNotFoundException exception1 = null;
     public static long millis = -1;
@@ -249,10 +252,10 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case 4: //kalibracja
                                 try {
-                                    TextView tvpr2 = (TextView) findViewById(R.id.tvpoz);
+                                    /*TextView tvpr2 = (TextView) findViewById(R.id.tvpoz);
                                     if (Integer.parseInt(tvpr2.getText().toString()) == ((Integer.parseInt(strOfInd[choosenInd][6]) * 10))) {
                                         dataprocesu = new Date();
-                                    }
+                                    }*/
                                     pomiarAktualny = editText.getText().toString();
                                     textView2.setText(editText.getText());
                                     editText.setText("");
@@ -330,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         spinner.setAdapter(spinnerArrayAdapter);
         spinner.setPrompt("Miejsce pomiaru");
-        spinner.setSelection(0);
+        spinner.setSelection(4);
         //spinner.setClickable(false);
         //spinner.setSelection(0);
 
@@ -406,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(20, 2, 17, 2);
                         break;
                     case 7:
-                        newTV.setPadding(46, 2, 17, 2);
+                        newTV.setPadding(44, 2, 17, 2);
                         break;
                     case 8:
                         newTV.setPadding(28, 2, 17, 2);
@@ -436,7 +439,7 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(22, 2, 17, 2);
                         break;
                     case 7:
-                        newTV.setPadding(49, 2, 17, 2);
+                        newTV.setPadding(42, 2, 17, 2);
                         break;
                     case 8:
                         newTV.setPadding(26, 2, 17, 2);
@@ -448,28 +451,28 @@ public class MainActivity extends AppCompatActivity {
                         newTV.setPadding(10, 2, 17, 2);
                         break;
                     case 1:
-                        newTV.setPadding(30, 2, 17, 2);
+                        newTV.setPadding(19, 2, 17, 2);
                         break;
                     case 2:
-                        newTV.setPadding(21, 2, 17, 2);
+                        newTV.setPadding(11, 2, 17, 2);
                         break;
                     case 3:
                         newTV.setPadding(30, 2, 17, 2);
                         break;
                     case 4:
-                        newTV.setPadding(38, 2, 17, 2);
+                        newTV.setPadding(35, 2, 17, 2);
                         break;
                     case 5:
-                        newTV.setPadding(30, 2, 17, 2);
+                        newTV.setPadding(12, 2, 17, 2);
                         break;
                     case 6:
-                        newTV.setPadding(30, 2, 17, 2);
+                        newTV.setPadding(20, 2, 17, 2);
                         break;
                     case 7:
-                        newTV.setPadding(45, 2, 17, 2);
+                        newTV.setPadding(40, 2, 17, 2);
                         break;
                     case 8:
-                        newTV.setPadding(33, 2, 17, 2);
+                        newTV.setPadding(26, 2, 17, 2);
                         break;
                 }
             }
@@ -563,6 +566,8 @@ public class MainActivity extends AppCompatActivity {
         double tolm;
         double pomiar;
 
+
+
         if (strOfInd[choosenInd][3] != "null") {
             wymiar = Double.parseDouble(strOfInd[choosenInd][3]);
         } else {
@@ -587,11 +592,19 @@ public class MainActivity extends AppCompatActivity {
             pomiar = 0.0;
         }
 
-        if (pomiar >= (wymiar - tolm) && pomiar <= (wymiar + tolp)) {
+        Double wymminus = BigDecimal.valueOf(new Double(wymiar-tolm))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+        Double wymplus = BigDecimal.valueOf(new Double(wymiar+tolp))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        if ((pomiar >= wymminus) && (pomiar <= wymplus)) {
             pomiarOk = true;
         } else {
             pomiarOk = false;
         }
+
     }
 
     private String prepNewIndPost(String pomiarAkt) {
@@ -663,7 +676,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopclick(View v) {
-
+        TextView loginTv = (TextView) findViewById(R.id.textView6);
+        if(loginTv.getText().toString().contains("KNT")){
+            showDialogCustYN("Zakończyć kontrolę i wylogować " + loginTv.getText().toString() + "?", 6);        }
         stopProces("auto");
 
     }
@@ -713,6 +728,7 @@ public class MainActivity extends AppCompatActivity {
                         liczProbKalib = 1;
                         if (started) {
                             showDialogCust("Uwaga", "Kalibracja zakończona poprawnie.\nSystem w trybie normalnym.");
+                            cdt = new CountDown(MILLISMAIN, 1000, this);
                             cdt.start();
                         }
 
@@ -909,7 +925,7 @@ public class MainActivity extends AppCompatActivity {
                         showDialogCust("Uwaga!", "Wykryto 3 błedne elementy!\nZatrzymaj proces.\nSprawdź wszystkie wyprodukowane elementy.");
                         stopProc = true;
                         blinkingAlertStop();
-                        //edittext.setEnabled(false);
+                        edittext.setEnabled(false);
                         break;
                     case 1:
                         break;
@@ -920,7 +936,7 @@ public class MainActivity extends AppCompatActivity {
                     case 4:
                         showDialogCust("Uwaga","Kalibracja niepoprawna.\nZatrzymaj proces.");
                         blinkingAlertStop();
-                        //edittext.setEnabled(false);
+                        edittext.setEnabled(false);
                         break;
                     default:
                         break;
@@ -1106,6 +1122,9 @@ public class MainActivity extends AppCompatActivity {
                             licznikPomiarowTmp1Kont = 1;
                             trybKalibLicz = 0;
                             trybKalibLiczPom = 0;
+                            liczSesja=0;
+                            trybNormalLiczPom=0;
+                            trybNormalLicz=0;
                             started = false;
                         } else if (action == 3) {
                             startclick(btnStart);
@@ -1559,7 +1578,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (trybKalibLiczPom == iloscPunktow && elemOk) {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
-                                        if (trybKalibLicz == 3) {
+                                        if (trybKalibLicz == 10) {
                                             kalibEnd = true;
                                             trybKalibLicz = 0;
                                             trybKalibLiczMain = 0;
@@ -1631,49 +1650,60 @@ public class MainActivity extends AppCompatActivity {
                     currentLog = tvLogged.getText().toString();
                     String newLog = intent.getStringExtra("nfcTag");
                     //tvLogged.setText(intent.getStringExtra("nfcTag"));
-
-                    if (!currentLog.equals(newLog)) {
-                        if (currentLog.equals("----")) {
-                            if (!newLog.contains("KNT")) {
-                                zaloguj(newLog, true);
-                            } else if (newLog.contains("KNT") && !started) {
-                                unregisterReceiver(breceive);
-                                showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
-                            } else if (newLog.contains("KNT") && started) {
-                                zaloguj(newLog, true);
-                            }
-                        } else {
-                            if (currentLog.contains("KNT")) {
-                                if (newLog.contains("KNT")) {
+                    System.out.println(newLog);
+                    if(!newLog.equals("uberadmin")) {
+                        if (!currentLog.equals(newLog)) {
+                            if (currentLog.equals("----")) {
+                                if (!newLog.contains("KNT")) {
+                                    zaloguj(newLog, true);
+                                } else if (newLog.contains("KNT") && !started) {
                                     unregisterReceiver(breceive);
-                                    showDialogCustYN("Obecnie zalogowany jest: " + currentLog + " w trybie kontroli.\nPrzelogować na: " + newLog + " w trybie kontroli?", 5);
-                                } else {
-                                    customToast("Zalogowanie niemożliwe w trakcie kontroli!");
+                                    showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
+                                } else if (newLog.contains("KNT") && started) {
+                                    zaloguj(newLog, true);
                                 }
                             } else {
-                                if (newLog.contains("KNT")) {
-                                    if (started) {
-                                        savedLogin = currentLog;
+                                if (currentLog.contains("KNT")) {
+                                    if (newLog.contains("KNT")) {
                                         unregisterReceiver(breceive);
-                                        showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + " w trybie kontroli?", 9);
-
+                                        showDialogCustYN("Obecnie zalogowany jest: " + currentLog + " w trybie kontroli.\nPrzelogować na: " + newLog + " w trybie kontroli?", 5);
                                     } else {
-                                        unregisterReceiver(breceive);
-                                        showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
+                                        customToast("Zalogowanie niemożliwe w trakcie kontroli!");
                                     }
                                 } else {
-                                    unregisterReceiver(breceive);
-                                    showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + "?", 8);
-                                }
+                                    if (newLog.contains("KNT")) {
+                                        if (started) {
+                                            savedLogin = currentLog;
+                                            unregisterReceiver(breceive);
+                                            showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + " w trybie kontroli?", 9);
 
+                                        } else {
+                                            unregisterReceiver(breceive);
+                                            showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
+                                        }
+                                    } else {
+                                        unregisterReceiver(breceive);
+                                        showDialogCustYN("Obecnie zalogowany jest: " + currentLog + ".\nPrzelogować na: " + newLog + "?", 8);
+                                    }
+
+                                }
                             }
+                        } else {
+                            customToast("Jesteś już zalogowany");
                         }
-                    } else {
-                        customToast("Jesteś już zalogowany");
+                    }else{
+                        launchApp("com.sand.airdroid");
                     }
 
                 } else if (intent.getAction().equals("akcja7")) {
                     blinkingAlert();
+                    try{
+                        cdt.cancel();
+
+                    }catch(Exception e){
+
+                    }
+
                 } else if (intent.getAction().equals("akcja8")) {
                     if (intent.getIntExtra("errortype", 1) == 0) {
                         showDialogCust("Błąd!", "Nie można zapisać obrazu.\nSprawdź uprawnienia aplikacji w ustawieniach systemu.");
@@ -1760,6 +1790,25 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    protected void launchApp(String packageName) {
+        Intent mIntent = getPackageManager().getLaunchIntentForPackage(
+                packageName);
+        if (mIntent != null) {
+            try {
+                startActivity(mIntent);
+            } catch (ActivityNotFoundException err) {
+                Toast t = Toast.makeText(getApplicationContext(),
+                        "Nie ma takiej aplikacji", Toast.LENGTH_SHORT);
+                t.show();
+            }
+        }
+    }
+
+    private void runShellCommand(String command) throws Exception {
+        Process process = Runtime.getRuntime().exec(command);
+        process.waitFor();
+    }
+
     private void blinkingAlert() {
         // btext = new BlinkingText(this);
         TextView tvblink = (TextView) findViewById(R.id.textView9);
@@ -1823,6 +1872,7 @@ public class MainActivity extends AppCompatActivity {
             editText.setText("");
             TextView tvpr = (TextView) findViewById(R.id.tvpoz);
             tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
+            //stopProc=false;
         } else {
             EditText editText = (EditText) findViewById(R.id.editText1);
             liczSesja = 0;
@@ -1852,11 +1902,16 @@ public class MainActivity extends AppCompatActivity {
         final TextView textView8 = (TextView) findViewById(R.id.textView8);
         final TextView textView5 = (TextView) findViewById(R.id.textView5);
         TextView tvblink = (TextView) findViewById(R.id.textView11);
+        TextView tvblinkWykonaj = (TextView) findViewById(R.id.textView9);
         if (logged) {
             if (am.equals("auto")) {
                 if (tvblink.getVisibility() == View.VISIBLE) {
                     tvblink.clearAnimation();
                     tvblink.setVisibility(View.GONE);
+                }
+                if (tvblinkWykonaj.getVisibility() == View.VISIBLE) {
+                    tvblinkWykonaj.clearAnimation();
+                    tvblinkWykonaj.setVisibility(View.GONE);
                 }
 
                 if (started) {
@@ -1881,12 +1936,19 @@ public class MainActivity extends AppCompatActivity {
                         trybKalibLicz = 0;
                         trybKalibLiczPom = 0;
                         trybKalibLiczMain=0;
+                        liczSesja=0;
+                        trybNormalLiczPom=0;
+                        trybNormalLicz=0;
                         tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
 
                         trybPomiaru = -1;
-                        if (cdt != null) {
+                        try{
                             cdt.cancel();
+
+                        }catch(Exception e){
+
                         }
+
                         textView8.setText("00:00:00");
                         textView5.setTextColor(Color.RED);
                         textView8.setTextColor(Color.RED);
@@ -1895,6 +1957,8 @@ public class MainActivity extends AppCompatActivity {
                         textView5.setX(730);
                         btnStart.setVisibility(View.VISIBLE);
                         btnStop.setVisibility(View.INVISIBLE);
+                        stopProc=false;
+                        edittext.setEnabled(true);
                     } else {
                         showDialogCustYN("Zakończyc proces dla indeksu " + indtv.getText().toString() + "?", 1);
                     }
@@ -1905,6 +1969,14 @@ public class MainActivity extends AppCompatActivity {
                 //new BlinkingText(this);
 
             } else if (am.equals("manual")) {
+                if (tvblink.getVisibility() == View.VISIBLE) {
+                    tvblink.clearAnimation();
+                    tvblink.setVisibility(View.GONE);
+                }
+                if (tvblinkWykonaj.getVisibility() == View.VISIBLE) {
+                    tvblinkWykonaj.clearAnimation();
+                    tvblinkWykonaj.setVisibility(View.GONE);
+                }
                 started = false;
                 ustawTryb(0);
                 indbtn.setEnabled(true);
@@ -1925,8 +1997,14 @@ public class MainActivity extends AppCompatActivity {
                 trybKalibLiczPom = 0;
                 trybPomiaru = -1;
                 trybKalibLiczMain=0;
-                if (cdt != null) {
+                liczSesja=0;
+                trybNormalLiczPom=0;
+                trybNormalLicz=0;
+                try{
                     cdt.cancel();
+
+                }catch(Exception e){
+
                 }
                 textView8.setText("00:00:00");
                 textView5.setTextColor(Color.RED);
@@ -1937,6 +2015,7 @@ public class MainActivity extends AppCompatActivity {
                 btnStart.setVisibility(View.VISIBLE);
                 btnStop.setVisibility(View.INVISIBLE);
                 tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
+                edittext.setEnabled(true);
             }
 
         } else {
