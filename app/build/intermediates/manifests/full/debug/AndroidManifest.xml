@@ -50,6 +50,13 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name="com.example.rafalzaborowski.suwmiarkiromb.AlarmReceiver" >
+            <intent-filter>
+                <action android:name="rafal.activebreciver.CUSTOM_INTENT" >
+                </action>
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="com.example.rafalzaborowski.suwmiarkiromb.UsbService"
             android:enabled="true" />

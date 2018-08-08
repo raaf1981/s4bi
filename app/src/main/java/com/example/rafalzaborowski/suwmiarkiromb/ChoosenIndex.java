@@ -97,7 +97,6 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
 
             @Override
             public boolean onQueryTextSubmit(String text) {
-                // TODO Auto-generated method stub
                 return false;
             }
 

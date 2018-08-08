@@ -1,7 +1,9 @@
 package com.example.rafalzaborowski.suwmiarkiromb;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
     private int trybPomiaru = -1, savedTryb = -1;
-    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = true, kalibEnd = false;
+    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = false, kalibEnd = false;
     public static boolean indexchoosen = false, stopProc = false, comm = false;
     FileNotFoundException exception1 = null;
     public static long millis = -1;
@@ -163,10 +165,12 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction("akcja11");
         filter.addAction("akcja12");
         filter.addAction("akcja13");
+        filter.addAction("akcja14");
         registerReceiver(breceive, filter);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
+        scheduleRun();
         final TextView tvpozostal = (TextView) findViewById(R.id.tvpoz);
         final TextView textView2 = (TextView) findViewById(R.id.pomiartv);
         final EditText editText = (EditText) findViewById(R.id.editText1);
@@ -678,8 +682,15 @@ public class MainActivity extends AppCompatActivity {
     public void stopclick(View v) {
         TextView loginTv = (TextView) findViewById(R.id.textView6);
         if(loginTv.getText().toString().contains("KNT")){
-            showDialogCustYN("Zakończyć kontrolę i wylogować " + loginTv.getText().toString() + "?", 6);        }
-        stopProces("auto");
+            showDialogCustYN("Zakończyć kontrolę i wylogować " + loginTv.getText().toString() + "?", 6);
+        }else{
+            if(logged && millis==0 && trybPomiaru==0 && liczSesja>0){
+                showDialogCust("Uwaga", "Aby zakończyć proces należy wykonać wszystkie pomiary.");
+            }else{
+                stopProces("auto");
+            }
+
+        }
 
     }
 
@@ -1447,6 +1458,7 @@ public class MainActivity extends AppCompatActivity {
         public static final String akcja11 = "akcja11";
         public static final String akcja12 = "akcja12";
         public static final String akcja13 = "akcja13";
+        public static final String akcja14 = "akcja14";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1539,8 +1551,9 @@ public class MainActivity extends AppCompatActivity {
                                         trybNormalLicz++;
                                         elemOk = true;
                                         if (trybNormalLicz == 3) {
-                                            trybNormalLicz = 0;
-                                            ustawTryb(7);
+                                            //trybNormalLicz = 0;
+                                            //ustawTryb(7);
+                                            stopProc = true;
                                         }
                                     } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
                                         trybNormalLiczPom = 0;
@@ -1552,8 +1565,9 @@ public class MainActivity extends AppCompatActivity {
                                         trybNormalLicz++;
                                         elemOk = true;
                                         if (trybNormalLicz == 3) {
-                                            trybNormalLicz = 0;
-                                            ustawTryb(7);
+                                            //trybNormalLicz = 0;
+                                            //ustawTryb(7);
+                                            stopProc = true;
                                         }
                                     } else if (trybNormalLiczPom == iloscPunktow && elemOk) {
                                         trybNormalLiczPom = 0;
@@ -1578,7 +1592,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (trybKalibLiczPom == iloscPunktow && elemOk) {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
-                                        if (trybKalibLicz == 10) {
+                                        if (trybKalibLicz == 2) {
                                             kalibEnd = true;
                                             trybKalibLicz = 0;
                                             trybKalibLiczMain = 0;
@@ -1783,6 +1797,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else if (intent.getAction().equals("akcja13")) {
                     customToast("Brak obrazu");
+                } else if (intent.getAction().equals("akcja14")) {
+                    TextView datetv = (TextView) findViewById(R.id.datatv);
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat mdformat = new SimpleDateFormat("dd / MM / yyyy ");
+                    datetv.setText("Data:   " + mdformat.format(calendar.getTime()));
                 }
             }
         }
@@ -1802,11 +1821,6 @@ public class MainActivity extends AppCompatActivity {
                 t.show();
             }
         }
-    }
-
-    private void runShellCommand(String command) throws Exception {
-        Process process = Runtime.getRuntime().exec(command);
-        process.waitFor();
     }
 
     private void blinkingAlert() {
@@ -1865,14 +1879,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void koniecpomiarow() {
+        final TextView tvloggedp = (TextView) findViewById(R.id.textView6);
         if (stopProc) {
             EditText editText = (EditText) findViewById(R.id.editText1);
             liczSesja = 0;
-            showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary. \nZatrzymaj proces z powodu nieprawidłowych elementów.");
+            showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary. \nWykryto błędne elementy w ilości: "+trybNormalLicz+"\nZatrzymaj proces!");
             editText.setText("");
             TextView tvpr = (TextView) findViewById(R.id.tvpoz);
             tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
-            //stopProc=false;
+            trybNormalLicz=0;
+            blinkingAlertStop();
+            editText.setEnabled(false);
         } else {
             EditText editText = (EditText) findViewById(R.id.editText1);
             liczSesja = 0;
@@ -1884,8 +1901,10 @@ public class MainActivity extends AppCompatActivity {
             tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
             cdt = new CountDown(MILLISMAIN, 1000, this);
             cdt.start();
-        }
+            tvloggedp.setText("----");
+            logged = false;
 
+        }
 
     }
 
@@ -1901,74 +1920,19 @@ public class MainActivity extends AppCompatActivity {
         final TextView tminus = (TextView) findViewById(R.id.tminustv);
         final TextView textView8 = (TextView) findViewById(R.id.textView8);
         final TextView textView5 = (TextView) findViewById(R.id.textView5);
+        final TextView textViewLogged = (TextView) findViewById(R.id.textView6);
         TextView tvblink = (TextView) findViewById(R.id.textView11);
         TextView tvblinkWykonaj = (TextView) findViewById(R.id.textView9);
         if (logged) {
-            if (am.equals("auto")) {
-                if (tvblink.getVisibility() == View.VISIBLE) {
-                    tvblink.clearAnimation();
-                    tvblink.setVisibility(View.GONE);
-                }
-                if (tvblinkWykonaj.getVisibility() == View.VISIBLE) {
-                    tvblinkWykonaj.clearAnimation();
-                    tvblinkWykonaj.setVisibility(View.GONE);
-                }
-
-                if (started) {
-                    if (stopProc) {
-                        //edittext.setEnabled(true);
-                        started = false;
-                        ustawTryb(0);
-                        indbtn.setEnabled(true);
-                        indtv.setClickable(true);
-                        TextView textView2 = (TextView) findViewById(R.id.pomiartv);
-                        textView2.setText("0.0");
-                        //wym.setText("-");
-                        //tplus.setText("-");
-                        //tminus.setText("-");
-                        //tvpozost.setText("");
-                        textView2.setTextColor(Color.parseColor("#000000"));
-                        licznikPomiarowGlowny = 1;
-                        liczProb = 1;
-                        liczProbKalib = 1;
-                        liczProbKont = 1;
-                        licznikPomiarowTmp1 = 1;
-                        trybKalibLicz = 0;
-                        trybKalibLiczPom = 0;
-                        trybKalibLiczMain=0;
-                        liczSesja=0;
-                        trybNormalLiczPom=0;
-                        trybNormalLicz=0;
-                        tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
-
-                        trybPomiaru = -1;
-                        try{
-                            cdt.cancel();
-
-                        }catch(Exception e){
-
-                        }
-
-                        textView8.setText("00:00:00");
-                        textView5.setTextColor(Color.RED);
-                        textView8.setTextColor(Color.RED);
-                        textView8.setVisibility(View.INVISIBLE);
-                        textView5.setText("PROCES ZATRZYMANY");
-                        textView5.setX(730);
-                        btnStart.setVisibility(View.VISIBLE);
-                        btnStop.setVisibility(View.INVISIBLE);
-                        stopProc=false;
-                        edittext.setEnabled(true);
-                    } else {
-                        showDialogCustYN("Zakończyc proces dla indeksu " + indtv.getText().toString() + "?", 1);
-                    }
+            if (textViewLogged.getText().toString().contains("KNT")) {
+                if (!savedLogin.equals("----")) {
+                    textViewLogged.setText(savedLogin);
+                    savedLogin = "----";
+                    logged = true;
                 } else {
-                    customToast("Nie rozpoczęto jeszcze procesu");
+                    textViewLogged.setText("----");
+                    logged = false;
                 }
-                edittext.requestFocus();
-                //new BlinkingText(this);
-
-            } else if (am.equals("manual")) {
                 if (tvblink.getVisibility() == View.VISIBLE) {
                     tvblink.clearAnimation();
                     tvblink.setVisibility(View.GONE);
@@ -1996,14 +1960,14 @@ public class MainActivity extends AppCompatActivity {
                 trybKalibLicz = 0;
                 trybKalibLiczPom = 0;
                 trybPomiaru = -1;
-                trybKalibLiczMain=0;
-                liczSesja=0;
-                trybNormalLiczPom=0;
-                trybNormalLicz=0;
-                try{
+                trybKalibLiczMain = 0;
+                liczSesja = 0;
+                trybNormalLiczPom = 0;
+                trybNormalLicz = 0;
+                try {
                     cdt.cancel();
 
-                }catch(Exception e){
+                } catch (Exception e) {
 
                 }
                 textView8.setText("00:00:00");
@@ -2016,11 +1980,125 @@ public class MainActivity extends AppCompatActivity {
                 btnStop.setVisibility(View.INVISIBLE);
                 tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
                 edittext.setEnabled(true);
-            }
+            } else {
+                if (am.equals("auto")) {
+                    if (tvblink.getVisibility() == View.VISIBLE) {
+                        tvblink.clearAnimation();
+                        tvblink.setVisibility(View.GONE);
+                    }
+                    if (tvblinkWykonaj.getVisibility() == View.VISIBLE) {
+                        tvblinkWykonaj.clearAnimation();
+                        tvblinkWykonaj.setVisibility(View.GONE);
+                    }
 
+                    if (started) {
+                        if (stopProc) {
+                            //edittext.setEnabled(true);
+                            started = false;
+                            ustawTryb(0);
+                            indbtn.setEnabled(true);
+                            indtv.setClickable(true);
+                            TextView textView2 = (TextView) findViewById(R.id.pomiartv);
+                            textView2.setText("0.0");
+                            //wym.setText("-");
+                            //tplus.setText("-");
+                            //tminus.setText("-");
+                            //tvpozost.setText("");
+                            textView2.setTextColor(Color.parseColor("#000000"));
+                            licznikPomiarowGlowny = 1;
+                            liczProb = 1;
+                            liczProbKalib = 1;
+                            liczProbKont = 1;
+                            licznikPomiarowTmp1 = 1;
+                            trybKalibLicz = 0;
+                            trybKalibLiczPom = 0;
+                            trybKalibLiczMain = 0;
+                            liczSesja = 0;
+                            trybNormalLiczPom = 0;
+                            trybNormalLicz = 0;
+                            tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
+
+                            trybPomiaru = -1;
+                            try {
+                                cdt.cancel();
+
+                            } catch (Exception e) {
+
+                            }
+
+                            textView8.setText("00:00:00");
+                            textView5.setTextColor(Color.RED);
+                            textView8.setTextColor(Color.RED);
+                            textView8.setVisibility(View.INVISIBLE);
+                            textView5.setText("PROCES ZATRZYMANY");
+                            textView5.setX(730);
+                            btnStart.setVisibility(View.VISIBLE);
+                            btnStop.setVisibility(View.INVISIBLE);
+                            stopProc = false;
+                            edittext.setEnabled(true);
+                        } else {
+                            showDialogCustYN("Zakończyc proces dla indeksu " + indtv.getText().toString() + "?", 1);
+                        }
+                    } else {
+                        customToast("Nie rozpoczęto jeszcze procesu");
+                    }
+                    edittext.requestFocus();
+                    //new BlinkingText(this);
+
+                } else if (am.equals("manual")) {
+                    if (tvblink.getVisibility() == View.VISIBLE) {
+                        tvblink.clearAnimation();
+                        tvblink.setVisibility(View.GONE);
+                    }
+                    if (tvblinkWykonaj.getVisibility() == View.VISIBLE) {
+                        tvblinkWykonaj.clearAnimation();
+                        tvblinkWykonaj.setVisibility(View.GONE);
+                    }
+                    started = false;
+                    ustawTryb(0);
+                    indbtn.setEnabled(true);
+                    indtv.setClickable(true);
+                    TextView textView2 = (TextView) findViewById(R.id.pomiartv);
+                    textView2.setText("0.0");
+                    //wym.setText("-");
+                    //tplus.setText("-");
+                    //tminus.setText("-");
+                    //tvpozost.setText("");
+                    textView2.setTextColor(Color.parseColor("#000000"));
+                    licznikPomiarowGlowny = 1;
+                    liczProb = 1;
+                    liczProbKalib = 1;
+                    liczProbKont = 1;
+                    licznikPomiarowTmp1 = 1;
+                    trybKalibLicz = 0;
+                    trybKalibLiczPom = 0;
+                    trybPomiaru = -1;
+                    trybKalibLiczMain = 0;
+                    liczSesja = 0;
+                    trybNormalLiczPom = 0;
+                    trybNormalLicz = 0;
+                    try {
+                        cdt.cancel();
+
+                    } catch (Exception e) {
+
+                    }
+                    textView8.setText("00:00:00");
+                    textView5.setTextColor(Color.RED);
+                    textView8.setTextColor(Color.RED);
+                    textView8.setVisibility(View.INVISIBLE);
+                    textView5.setText("PROCES ZATRZYMANY");
+                    textView5.setX(730);
+                    btnStart.setVisibility(View.VISIBLE);
+                    btnStop.setVisibility(View.INVISIBLE);
+                    tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
+                    edittext.setEnabled(true);
+                }
+            }
         } else {
             showDialogCust("Błąd", "Zaloguj się");
         }
+
     }
 
     //obsluga USB
@@ -2106,4 +2184,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void scheduleRun(){
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.setAction("rafal.activebreciver.CUSTOM_INTENT");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
+    }
+
 }
