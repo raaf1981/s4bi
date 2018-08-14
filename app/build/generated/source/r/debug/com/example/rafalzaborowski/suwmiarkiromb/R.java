@@ -3897,7 +3897,8 @@ public final class R {
     public static final int wylogbtn=0x7f0900fe;
     public static final int wymiarlbl=0x7f0900ff;
     public static final int wymiartv=0x7f090100;
-    public static final int zmianaindbtn=0x7f090101;
+    public static final int zalogbtn=0x7f090101;
+    public static final int zmianaindbtn=0x7f090102;
   }
   public static final class integer {
     public static final int abc_config_activityDefaultDur=0x7f0a0000;

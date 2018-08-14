@@ -16,18 +16,20 @@ import java.io.InputStreamReader;
 public class LoginTask {
     Context context;
     String tagNfc;
+    int nfcman;
     InputStreamReader odpowiedz;
     String readJsonString;
     JSONObject jObj;
-    private int endResult=-1;
+    private int endResult = -1;
 
 
-
-    public LoginTask(String tagNfc, Activity act) {
+    public LoginTask(String tagNfc, Activity act, int nfcman) {
         this.context = (Context) act.getBaseContext();
         this.tagNfc = tagNfc;
+        this.nfcman = nfcman;
         new LoggingTask().execute();
     }
+
 
     private class LoggingTask extends AsyncTask<Void, Void, Void> {
 
@@ -43,50 +45,55 @@ public class LoginTask {
         protected void onPostExecute(Void result) {
 
             Intent i = new Intent("akcja10");
-            i.putExtra("tagNfc",String.valueOf(tagNfc));
-            i.putExtra("result",endResult);
+            i.putExtra("tagNfc", String.valueOf(tagNfc));
+            i.putExtra("result", endResult);
             context.sendBroadcast(i);
             super.onPostExecute(result);
         }
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            String logstr;
-            if (tagNfc.contains("KNT")) {
-                logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"Kontrola\"}";
-            } else {
-                logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"" + MainActivity.MIEJSCE + "\"}";
-            }
-            String stat = "", mes = "";
-            odpowiedz = HttpHandler.doPostLogin(logstr);
-            try {
-                readJsonString = readFromStream(odpowiedz);
-                System.out.println("printuję odpowiedz:  " + readJsonString);
-                jObj = new JSONObject(readJsonString);
-                //JSONArray jArr = jObj.getJSONArray("indeks");
-                stat = jObj.getString("status");
-                mes = jObj.getString("message");
-
-
-                if (stat.equals("true") && mes.equals("Login OK")) {
-                    endResult=0;
-
-                } else if (stat.equals("false") && mes.equals("Rola nie znaleziona")) {
-                    endResult=1;
-
-                } else if (stat.equals("false") && mes.equals("User could not be found")) {
-                    endResult=2;
+            if (nfcman == 0) {
+                String logstr;
+                if (tagNfc.contains("KNT")) {
+                    logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"Kontrola\"}";
+                } else {
+                    logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"" + MainActivity.MIEJSCE + "\"}";
                 }
-            } catch (IOException e) {
+                String stat = "", mes = "";
+                odpowiedz = HttpHandler.doPostLogin(logstr);
+                try {
+                    readJsonString = readFromStream(odpowiedz);
+                    System.out.println("printuję odpowiedz:  " + readJsonString);
+                    jObj = new JSONObject(readJsonString);
+                    //JSONArray jArr = jObj.getJSONArray("indeks");
+                    stat = jObj.getString("status");
+                    mes = jObj.getString("message");
 
-                e.printStackTrace();
-            } catch (JSONException e) {
-                endResult=3;
 
-                e.printStackTrace();
+                    if (stat.equals("true") && mes.equals("Login OK")) {
+                        endResult = 0;
+
+                    } else if (stat.equals("false") && mes.equals("Rola nie znaleziona")) {
+                        endResult = 1;
+
+                    } else if (stat.equals("false") && mes.equals("User could not be found")) {
+                        endResult = 2;
+                    }
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    endResult = 3;
+
+                    e.printStackTrace();
+                }
+                //System.out.println(indeksy.toString());
+            } else if (nfcman == 1) {
+
             }
-            //System.out.println(indeksy.toString());
             return null;
+
         }
 
         private String readFromStream(InputStreamReader inputStreamReader) throws IOException {

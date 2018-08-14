@@ -68,7 +68,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Main Activity", MIEJSCE = "Pila";
-    private static final long MILLISMAIN = 1200000;
+    private static final long MILLISMAIN = 10000;
     public static String[][] strOfInd;
     public static int choosenInd;
     InputStreamReader indeksy, odpowiedz;
@@ -224,6 +224,9 @@ public class MainActivity extends AppCompatActivity {
                                 TextView tvpr = (TextView) findViewById(R.id.tvpoz);
                                 if (Integer.parseInt(tvpr.getText().toString()) == ((Integer.parseInt(strOfInd[choosenInd][6]) * 10))) {
                                     dataprocesu = new Date();
+                                    tabLay1 = (TableLayout) findViewById(R.id.tabLay);
+                                    tabLay1.removeAllViews();
+                                    licznikPomiarowGlowny=1;
                                 }
                                 if (logged && started && millis > 0) {
                                     showDialogCust("Uwaga", "Nie można wykonać pomiaru przed czasem.");
@@ -1162,7 +1165,7 @@ public class MainActivity extends AppCompatActivity {
                             tvloggedp.setText("----");
                             logged = false;
                         } else if (action == 5) {
-                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false);
+                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false,0);
                             registerReceiver(breceive, filter);
                         } else if (action == 6) {
                             if (!savedLogin.equals("----")) {
@@ -1181,10 +1184,10 @@ public class MainActivity extends AppCompatActivity {
                             ustawTryb(savedTryb);
                             logged = false;
                         } else if (action == 8) {
-                            zaloguj(textAlert.substring(textAlert.lastIndexOf("PRC"), textAlert.lastIndexOf("PRC") + 6), false);
+                            zaloguj(textAlert.substring(textAlert.lastIndexOf("PRC"), textAlert.lastIndexOf("PRC") + 6), false,0);
                             registerReceiver(breceive, filter);
                         } else if (action == 9) {
-                            zaloguj(textAlert.substring(textAlert.lastIndexOf("KNT"), textAlert.lastIndexOf("KNT") + 6), false);
+                            zaloguj(textAlert.substring(textAlert.lastIndexOf("KNT"), textAlert.lastIndexOf("KNT") + 6), false,0);
                             registerReceiver(breceive, filter);
                         }
                     }
@@ -1249,9 +1252,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void zaloguj(String tagNfc, boolean comm2) {
+    public void zalogujbtnclick(View v) {
+        DialogFragment newFragment = new ChoosenIndex();
+        newFragment.show(getSupportFragmentManager(), "choosen");
+    }
+
+    private void zaloguj(String tagNfc, boolean comm2, int act) {
         comm = comm2;
-        new LoginTask(tagNfc, this);
+        new LoginTask(tagNfc, this,act);
 
     }
 
@@ -1592,7 +1600,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (trybKalibLiczPom == iloscPunktow && elemOk) {
                                         trybKalibLiczPom = 0;
                                         trybKalibLicz++;
-                                        if (trybKalibLicz == 2) {
+                                        if (trybKalibLicz == 10) {
                                             kalibEnd = true;
                                             trybKalibLicz = 0;
                                             trybKalibLiczMain = 0;
@@ -1669,12 +1677,12 @@ public class MainActivity extends AppCompatActivity {
                         if (!currentLog.equals(newLog)) {
                             if (currentLog.equals("----")) {
                                 if (!newLog.contains("KNT")) {
-                                    zaloguj(newLog, true);
+                                    zaloguj(newLog, true,0);
                                 } else if (newLog.contains("KNT") && !started) {
                                     unregisterReceiver(breceive);
                                     showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
                                 } else if (newLog.contains("KNT") && started) {
-                                    zaloguj(newLog, true);
+                                    zaloguj(newLog, true,0);
                                 }
                             } else {
                                 if (currentLog.contains("KNT")) {

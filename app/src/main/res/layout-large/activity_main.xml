@@ -441,6 +441,20 @@
         android:layout_y="45dp"
         android:onClick="wyloguj"
         android:text="WYLOGUJ"
+        android:visibility="invisible"
+        tools:layout_editor_absoluteX="361dp"
+        tools:layout_editor_absoluteY="52dp" />
+
+    <Button
+        android:id="@+id/zalogbtn"
+        style="@style/buttonStop"
+        android:layout_width="134dp"
+        android:layout_height="wrap_content"
+        android:layout_x="313dp"
+        android:layout_y="45dp"
+        android:onClick="zalogujbtnclick"
+        android:text="ZALOGUJ"
+        android:visibility="visible"
         tools:layout_editor_absoluteX="361dp"
         tools:layout_editor_absoluteY="52dp" />
 
