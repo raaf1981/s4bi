@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction("akcja12");
         filter.addAction("akcja13");
         filter.addAction("akcja14");
+        filter.addAction("akcja15");
         registerReceiver(breceive, filter);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -1253,8 +1254,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void zalogujbtnclick(View v) {
-        DialogFragment newFragment = new ChoosenIndex();
-        newFragment.show(getSupportFragmentManager(), "choosen");
+        DialogFragment newFragment = new LoginDialog();
+        newFragment.show(getSupportFragmentManager(), "login");
     }
 
     private void zaloguj(String tagNfc, boolean comm2, int act) {
@@ -1467,6 +1468,7 @@ public class MainActivity extends AppCompatActivity {
         public static final String akcja12 = "akcja12";
         public static final String akcja13 = "akcja13";
         public static final String akcja14 = "akcja14";
+        public static final String akcja15 = "akcja15";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1810,6 +1812,8 @@ public class MainActivity extends AppCompatActivity {
                     Calendar calendar = Calendar.getInstance();
                     SimpleDateFormat mdformat = new SimpleDateFormat("dd / MM / yyyy ");
                     datetv.setText("Data:   " + mdformat.format(calendar.getTime()));
+                } else if (intent.getAction().equals("akcja15")) {
+                    zaloguj(intent.getStringExtra("login"),);
                 }
             }
         }

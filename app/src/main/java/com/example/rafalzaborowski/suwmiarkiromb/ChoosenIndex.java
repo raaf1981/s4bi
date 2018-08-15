@@ -2,23 +2,15 @@ package com.example.rafalzaborowski.suwmiarkiromb;
 
 
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsoluteLayout;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,13 +23,8 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
@@ -129,7 +116,7 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
                 button2 = (Button) customView.findViewById(R.id.button2);
                 button3 = (Button) customView.findViewById(R.id.button3);
                 button4 = (Button) customView.findViewById(R.id.button4);
-                button5 = (Button) customView.findViewById(R.id.button5);
+                button5 = (Button) customView.findViewById(R.id.button6);
                 button6 = (Button) customView.findViewById(R.id.button6);
                 button7 = (Button) customView.findViewById(R.id.button7);
                 button8 = (Button) customView.findViewById(R.id.button8);
