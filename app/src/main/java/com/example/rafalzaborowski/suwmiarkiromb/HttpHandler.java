@@ -165,8 +165,10 @@ public class HttpHandler {
                 InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
                 return responseBodyReader;
 
-            } else {
-
+            } else if(myConnection.getResponseCode() == 400) {
+                InputStream responseBody = myConnection.getErrorStream();
+                InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
+                return responseBodyReader;
             }
 
         } catch (MalformedURLException e) {

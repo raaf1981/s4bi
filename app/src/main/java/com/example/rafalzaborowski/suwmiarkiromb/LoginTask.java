@@ -15,18 +15,17 @@ import java.io.InputStreamReader;
 
 public class LoginTask {
     Context context;
-    String tagNfc;
-    int nfcman;
+    String tagNfc,pin="";
     InputStreamReader odpowiedz;
     String readJsonString;
     JSONObject jObj;
     private int endResult = -1;
 
 
-    public LoginTask(String tagNfc, Activity act, int nfcman) {
+    public LoginTask(String tagNfc, Activity act, String pin) {
         this.context = (Context) act.getBaseContext();
         this.tagNfc = tagNfc;
-        this.nfcman = nfcman;
+        this.pin = pin;
         new LoggingTask().execute();
     }
 
@@ -53,13 +52,14 @@ public class LoginTask {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            if (nfcman == 0) {
+            if (pin.equals("")) {
                 String logstr;
                 if (tagNfc.contains("KNT")) {
                     logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"Kontrola\"}";
                 } else {
                     logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"" + MainActivity.MIEJSCE + "\"}";
                 }
+
                 String stat = "", mes = "";
                 odpowiedz = HttpHandler.doPostLogin(logstr);
                 try {
@@ -89,8 +89,43 @@ public class LoginTask {
                     e.printStackTrace();
                 }
                 //System.out.println(indeksy.toString());
-            } else if (nfcman == 1) {
+            } else {
+                String logstr;
+                if (tagNfc.contains("KNT")) {
+                    logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"Kontrola\",\"member_pin\":\""+pin+"\"}";
+                } else {
+                    logstr = "{\"member_login\":\"" + tagNfc + "\",\"member_role\":\"" + MainActivity.MIEJSCE + "\",\"member_pin\":\""+pin+"\"}";
+                }
+                String stat = "", mes = "";
+                odpowiedz = HttpHandler.doPostLoginClick(logstr);
+                try {
+                    readJsonString = readFromStream(odpowiedz);
+                    System.out.println("printuję odpowiedz:  " + readJsonString);
+                    jObj = new JSONObject(readJsonString);
+                    //JSONArray jArr = jObj.getJSONArray("indeks");
+                    stat = jObj.getString("status");
+                    mes = jObj.getString("message");
 
+
+                    if (stat.equals("true") && mes.equals("Login OK")) {
+                        endResult = 0;
+
+                    } else if (stat.equals("false") && mes.equals("Rola nie znaleziona")) {
+                        endResult = 1;
+
+                    } else if (stat.equals("false") && mes.equals("User could not be found")) {
+                        endResult = 2;
+                    }else if (stat.equals("false") && mes.equals("Bad PIN")) {
+                        endResult = 4;
+                    }
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    endResult = 3;
+
+                    e.printStackTrace();
+                }
             }
             return null;
 

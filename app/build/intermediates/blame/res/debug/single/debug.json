@@ -1620,6 +1620,10 @@
         "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/e05069a8b451debd6d0366a57c746329/res/drawable-xxhdpi-v4/abc_list_selector_disabled_holo_dark.9.png"
     },
     {
+        "merged": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/res/merged/debug/drawable_cursor_red.xml.flat",
+        "source": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/res/drawable/cursor_red.xml"
+    },
+    {
         "merged": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/res/merged/debug/layout_abc_select_dialog_material.xml.flat",
         "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/e05069a8b451debd6d0366a57c746329/res/layout/abc_select_dialog_material.xml"
     },

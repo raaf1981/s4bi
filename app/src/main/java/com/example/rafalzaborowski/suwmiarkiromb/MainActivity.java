@@ -1,5 +1,6 @@
 package com.example.rafalzaborowski.suwmiarkiromb;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
@@ -33,6 +35,7 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -77,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     JSONObject jObj;
     TableLayout tabLay1;
     Date currentDate;
-    Date dataprocesu;
+    Date dataprocesu, dataprocesuBackup;
     IntentFilter filter = new IntentFilter();
     String targetPdf = "storage/emulated/0/downloadedPdf/index.pdf";
     ImageView pdfView;
@@ -103,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
     public static long millis = -1;
     private UsbService usbService;
     private MyHandler mHandler;
+    public static String prevLogin="";
+    private SharedPreferences preferences;
 
     @Override
     public void onBackPressed() {
@@ -341,7 +346,25 @@ public class MainActivity extends AppCompatActivity {
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         spinner.setAdapter(spinnerArrayAdapter);
         spinner.setPrompt("Miejsce pomiaru");
-        spinner.setSelection(4);
+        preferences = getSharedPreferences("myPrefs", Activity.MODE_PRIVATE);
+        int getprefspinner = preferences.getInt("miejsce", 4);
+        spinner.setSelection(getprefspinner);
+        spinner.setEnabled(false);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                SharedPreferences.Editor preferencesEditor = preferences.edit();
+                int spinnerSelect = position;
+                preferencesEditor.putInt ("miejsce", spinnerSelect);
+                preferencesEditor.commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
         //spinner.setClickable(false);
         //spinner.setSelection(0);
 
@@ -704,6 +727,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvpoz = (TextView) findViewById(R.id.textView4);
         EditText edittext = (EditText) findViewById(R.id.editText1);
         Button btnCtrl = (Button) findViewById(R.id.btnControl);
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
 
         switch (tryb) {
             case -1: //nieustalony
@@ -724,6 +748,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         break;
                 }
+                spinner.setEnabled(false);
                 break;
             case 0: //zwykły
                 switch (trybPomiaru) {
@@ -742,15 +767,23 @@ public class MainActivity extends AppCompatActivity {
                     case 4:
                         liczProbKalib = 1;
                         if (started) {
+                            TextView tvloggedp = (TextView) findViewById(R.id.textView6);
+                            Button btnlog = (Button) findViewById(R.id.zalogbtn);
+                            Button btnwylog = (Button) findViewById(R.id.wylogbtn);
                             showDialogCust("Uwaga", "Kalibracja zakończona poprawnie.\nSystem w trybie normalnym.");
                             cdt = new CountDown(MILLISMAIN, 1000, this);
                             cdt.start();
+                            tvloggedp.setText("----");
+                            logged = false;
+                            btnlog.setVisibility(View.VISIBLE);
+                            btnwylog.setVisibility(View.INVISIBLE);
                         }
 
                         break;
                     case 5:
                         break;
                     case 6:
+                        dataprocesu=dataprocesuBackup;
                         liczProbKont = 1;
                         trybText.clearAnimation();
                         trybText.setTextColor(Color.WHITE);
@@ -772,6 +805,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         break;
                 }
+                spinner.setEnabled(false);
                 trybPomiaru = 0;
                 trybText.setText("Wymagana ilość pomiarów:");
                 tvpoz.setVisibility(View.VISIBLE);
@@ -847,6 +881,7 @@ public class MainActivity extends AppCompatActivity {
             case 4: //kalibracja
                 switch (trybPomiaru) {
                     case -1:
+                        dataprocesu = new Date();
                         break;
                     case 0:
                         break;
@@ -861,6 +896,7 @@ public class MainActivity extends AppCompatActivity {
                     case 5:
                         break;
                     case 6:
+                        dataprocesu=dataprocesuBackup;
                         liczProbKont = 1;
                         trybText.clearAnimation();
                         trybText.setTextColor(Color.WHITE);
@@ -878,7 +914,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         break;
                 }
-                dataprocesu = new Date();
+                spinner.setEnabled(false);
                 trybPomiaru = 4;
                 trybText.setText("Tryb pomiaru: KALIBRACJA");
                 tvpoz.setVisibility(View.GONE);
@@ -916,6 +952,8 @@ public class MainActivity extends AppCompatActivity {
                         tvblink.clearAnimation();
                         tvblink.setVisibility(View.INVISIBLE);
                         cdt.cancel();
+                        dataprocesuBackup=dataprocesu;
+                        dataprocesu = new Date();
                         break;
                     case 1:
                         break;
@@ -924,11 +962,14 @@ public class MainActivity extends AppCompatActivity {
                     case 3:
                         break;
                     case 4:
+                        dataprocesuBackup=dataprocesu;
+                        dataprocesu = new Date();
                         break;
                     default:
                         break;
                 }
-                dataprocesu = new Date();
+
+                spinner.setEnabled(true);
                 trybPomiaru = 6;
                 blinkingControl();
                 break;
@@ -1163,32 +1204,47 @@ public class MainActivity extends AppCompatActivity {
                             editText.requestFocus();
 
                         } else if (action == 4) {
+                            Button btnlog = (Button) findViewById(R.id.zalogbtn);
+                            Button btnwylog = (Button) findViewById(R.id.wylogbtn);
                             tvloggedp.setText("----");
                             logged = false;
+                            btnlog.setVisibility(View.VISIBLE);
+                            btnwylog.setVisibility(View.INVISIBLE);
+
                         } else if (action == 5) {
-                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false,0);
+                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false,"");
                             registerReceiver(breceive, filter);
                         } else if (action == 6) {
+                            Button btnlog = (Button) findViewById(R.id.zalogbtn);
+                            Button btnwylog = (Button) findViewById(R.id.wylogbtn);
                             if (!savedLogin.equals("----")) {
                                 tvloggedp.setText(savedLogin);
                                 savedLogin = "----";
                                 logged = true;
+                                btnlog.setVisibility(View.INVISIBLE);
+                                btnwylog.setVisibility(View.VISIBLE);
                             } else {
                                 tvloggedp.setText("----");
 
                                 logged = false;
+                                btnlog.setVisibility(View.VISIBLE);
+                                btnwylog.setVisibility(View.INVISIBLE);
                             }
                             ustawTryb(savedTryb);
 
                         } else if (action == 7) {
+                            Button btnlog = (Button) findViewById(R.id.zalogbtn);
+                            Button btnwylog = (Button) findViewById(R.id.wylogbtn);
                             tvloggedp.setText("----");
                             ustawTryb(savedTryb);
                             logged = false;
+                            btnlog.setVisibility(View.VISIBLE);
+                            btnwylog.setVisibility(View.INVISIBLE);
                         } else if (action == 8) {
-                            zaloguj(textAlert.substring(textAlert.lastIndexOf("PRC"), textAlert.lastIndexOf("PRC") + 6), false,0);
+                            zaloguj(textAlert.substring(textAlert.lastIndexOf("PRC"), textAlert.lastIndexOf("PRC") + 6), false,"");
                             registerReceiver(breceive, filter);
                         } else if (action == 9) {
-                            zaloguj(textAlert.substring(textAlert.lastIndexOf("KNT"), textAlert.lastIndexOf("KNT") + 6), false,0);
+                            zaloguj(textAlert.substring(textAlert.lastIndexOf("KNT"), textAlert.lastIndexOf("KNT") + 6), false,"");
                             registerReceiver(breceive, filter);
                         }
                     }
@@ -1258,9 +1314,9 @@ public class MainActivity extends AppCompatActivity {
         newFragment.show(getSupportFragmentManager(), "login");
     }
 
-    private void zaloguj(String tagNfc, boolean comm2, int act) {
+    private void zaloguj(String tagNfc, boolean comm2, String pin) {
         comm = comm2;
-        new LoginTask(tagNfc, this,act);
+        new LoginTask(tagNfc, this,pin);
 
     }
 
@@ -1679,12 +1735,12 @@ public class MainActivity extends AppCompatActivity {
                         if (!currentLog.equals(newLog)) {
                             if (currentLog.equals("----")) {
                                 if (!newLog.contains("KNT")) {
-                                    zaloguj(newLog, true,0);
+                                    zaloguj(newLog, true,"");
                                 } else if (newLog.contains("KNT") && !started) {
                                     unregisterReceiver(breceive);
                                     showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
                                 } else if (newLog.contains("KNT") && started) {
-                                    zaloguj(newLog, true,0);
+                                    zaloguj(newLog, true,"");
                                 }
                             } else {
                                 if (currentLog.contains("KNT")) {
@@ -1745,6 +1801,9 @@ public class MainActivity extends AppCompatActivity {
                     int res = intent.getIntExtra("result", -1);
                     TextView tvLogged = (TextView) findViewById(R.id.textView6);
                     if (res == 0) {
+                        Button btnlog = (Button) findViewById(R.id.zalogbtn);
+                        Button btnwylog = (Button) findViewById(R.id.wylogbtn);
+                        prevLogin=tag;
                         if (tag.contains("KNT")) {
                             tvLogged.setText(tag);
                             if (comm) {
@@ -1765,6 +1824,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             logged = true;
+                            btnlog.setVisibility(View.INVISIBLE);
+                            btnwylog.setVisibility(View.VISIBLE);
 
                         } else {
                             tvLogged.setText(tag);
@@ -1774,6 +1835,9 @@ public class MainActivity extends AppCompatActivity {
 
                             }
                             logged = true;
+                            btnlog.setVisibility(View.INVISIBLE);
+                            btnwylog.setVisibility(View.VISIBLE);
+
                         }
                     } else if (res == 1) {
                         unregisterReceiver(breceive);
@@ -1784,6 +1848,9 @@ public class MainActivity extends AppCompatActivity {
                     } else if (res == 3) {
                         unregisterReceiver(breceive);
                         showDialogCust("Błąd", "Problem z potwierdzeniem uprawnień.\nSprawdź połączenie sieciowe i VPN.", 1);
+                    } else if (res == 4) {
+                        unregisterReceiver(breceive);
+                        showDialogCust("Błąd", "Nieprawidłowy PIN.", 1);
                     }
                 } else if (intent.getAction().equals("akcja11")) {
                     if (!kogut.equals("2")) {
@@ -1813,7 +1880,7 @@ public class MainActivity extends AppCompatActivity {
                     SimpleDateFormat mdformat = new SimpleDateFormat("dd / MM / yyyy ");
                     datetv.setText("Data:   " + mdformat.format(calendar.getTime()));
                 } else if (intent.getAction().equals("akcja15")) {
-                    zaloguj(intent.getStringExtra("login"),);
+                    zaloguj(intent.getStringExtra("login"),true,intent.getStringExtra("pin"));
                 }
             }
         }
@@ -1903,6 +1970,8 @@ public class MainActivity extends AppCompatActivity {
             blinkingAlertStop();
             editText.setEnabled(false);
         } else {
+            Button btnlog = (Button) findViewById(R.id.zalogbtn);
+            Button btnwylog = (Button) findViewById(R.id.wylogbtn);
             EditText editText = (EditText) findViewById(R.id.editText1);
             liczSesja = 0;
             trybNormalLicz=0;
@@ -1915,6 +1984,8 @@ public class MainActivity extends AppCompatActivity {
             cdt.start();
             tvloggedp.setText("----");
             logged = false;
+            btnlog.setVisibility(View.VISIBLE);
+            btnwylog.setVisibility(View.INVISIBLE);
 
         }
 
@@ -1937,13 +2008,20 @@ public class MainActivity extends AppCompatActivity {
         TextView tvblinkWykonaj = (TextView) findViewById(R.id.textView9);
         if (logged) {
             if (textViewLogged.getText().toString().contains("KNT")) {
+                Button btnlog = (Button) findViewById(R.id.zalogbtn);
+                Button btnwylog = (Button) findViewById(R.id.wylogbtn);
                 if (!savedLogin.equals("----")) {
+
                     textViewLogged.setText(savedLogin);
                     savedLogin = "----";
                     logged = true;
+                    btnlog.setVisibility(View.INVISIBLE);
+                    btnwylog.setVisibility(View.VISIBLE);
                 } else {
                     textViewLogged.setText("----");
                     logged = false;
+                    btnlog.setVisibility(View.VISIBLE);
+                    btnwylog.setVisibility(View.INVISIBLE);
                 }
                 if (tvblink.getVisibility() == View.VISIBLE) {
                     tvblink.clearAnimation();

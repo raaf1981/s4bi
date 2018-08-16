@@ -67,6 +67,7 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:textColor="@android:color/black"
+        android:textCursorDrawable="@drawable/cursor_red"
         android:textSize="32dp" />
 
     <EditText
@@ -75,13 +76,14 @@
         android:layout_height="61dp"
         android:layout_alignEnd="@+id/textView"
         android:layout_below="@+id/loginEd"
-        android:layout_x="498dp"
-        android:layout_y="363dp"
+        android:layout_x="492dp"
+        android:layout_y="365dp"
         android:background="@android:color/white"
         android:ems="10"
         android:inputType="textPersonName"
         android:password="true"
         android:textColor="@android:color/black"
+        android:textCursorDrawable="@drawable/cursor_red"
         android:textSize="32dp" />
 
     <RelativeLayout
@@ -228,7 +230,7 @@
         android:layout_alignBottom="@+id/loginEd"
         android:layout_toStartOf="@+id/loginEd"
         android:layout_x="489dp"
-        android:layout_y="209dp"
+        android:layout_y="214dp"
         android:text="PRC"
         android:textColor="@android:color/white"
         android:textSize="32dp" />

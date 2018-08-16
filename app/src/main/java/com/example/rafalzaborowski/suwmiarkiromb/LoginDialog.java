@@ -10,14 +10,17 @@ import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-public class LoginDialog extends DialogFragment {
+public class LoginDialog extends DialogFragment{
     ;
     private Button button1, button2, button3, button4, button5, button6, button7, button8, button9, button0;
     private ImageButton buttonBack;
@@ -31,6 +34,7 @@ public class LoginDialog extends DialogFragment {
 
     }
 
+
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -38,12 +42,28 @@ public class LoginDialog extends DialogFragment {
         View mainview = inflater.inflate(R.layout.logindialog, null);
         builder.setView(mainview);
         super.onCreate(savedInstanceState);
+        RadioButton rb1 = (RadioButton) mainview.findViewById(R.id.rb1);
+        RadioButton rb2 = (RadioButton) mainview.findViewById(R.id.rb2);
+        TextView tvkntprc = (TextView) mainview.findViewById(R.id.tvprcknt);
+        rb1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvkntprc.setText("PRC");
+            }
+        });
+
+        rb2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvkntprc.setText("KNT");
+            }
+        });
 
         button1 = (Button) mainview.findViewById(R.id.button1);
         button2 = (Button) mainview.findViewById(R.id.button2);
         button3 = (Button) mainview.findViewById(R.id.button3);
         button4 = (Button) mainview.findViewById(R.id.button4);
-        button5 = (Button) mainview.findViewById(R.id.button6);
+        button5 = (Button) mainview.findViewById(R.id.button5);
         button6 = (Button) mainview.findViewById(R.id.button6);
         button7 = (Button) mainview.findViewById(R.id.button7);
         button8 = (Button) mainview.findViewById(R.id.button8);
@@ -72,7 +92,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("2");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "2");
                 }
             }
         });
@@ -84,7 +104,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("3");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "3");
                 }
             }
         });
@@ -96,7 +116,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("4");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "4");
                 }
             }
         });
@@ -108,7 +128,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("5");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "5");
                 }
             }
         });
@@ -120,7 +140,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("6");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "6");
                 }
             }
         });
@@ -132,7 +152,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("7");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "7");
                 }
             }
         });
@@ -144,7 +164,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("8");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "8");
                 }
             }
         });
@@ -156,7 +176,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("9");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "9");
                 }
             }
         });
@@ -168,7 +188,7 @@ public class LoginDialog extends DialogFragment {
                 if (((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
                     ((EditText) (getDialog()).getCurrentFocus()).setText("0");
                 } else {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "1");
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString() + "0");
                 }
             }
         });
@@ -176,31 +196,22 @@ public class LoginDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if (!((EditText) (getDialog()).getCurrentFocus()).getText().toString().equals("")) {
-                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString().length() - 1);
+                    ((EditText) (getDialog()).getCurrentFocus()).setText(((EditText) (getDialog()).getCurrentFocus()).getText().toString().subSequence(0, ((EditText) (getDialog()).getCurrentFocus()).getText().toString().length() - 1));
                 }
             }
         });
 
-
-        RadioGroup rb = (RadioGroup) mainview.findViewById(R.id.rg1);
         TextView tvprcknt = (TextView) mainview.findViewById(R.id.tvprcknt);
-        rb.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case 0: //pracownik
-                        tvprcknt.setText("PRC");
-                        break;
-                    case 1: //kontrola
-                        tvprcknt.setText("KNT");
-                        break;
-                }
-            }
 
-        });
         Button buttonOk = (Button) mainview.findViewById(R.id.bOk);
         Button buttonAnul = (Button) mainview.findViewById(R.id.bAn);
         EditText etLogin = (EditText) mainview.findViewById(R.id.loginEd);
         EditText etPin = (EditText) mainview.findViewById(R.id.passEd);
+        if(!MainActivity.prevLogin.equals("")){
+            etLogin.setText(MainActivity.prevLogin.subSequence(3,MainActivity.prevLogin.length()));
+            etLogin.setSelectAllOnFocus(true);
+            //etLogin.setSelection(etLogin.getText().length());
+        }
         buttonOk.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(!etLogin.getText().toString().equals("") && !etPin.getText().toString().equals("")){
@@ -230,6 +241,7 @@ public class LoginDialog extends DialogFragment {
 
         return builder.create();
     }
+
 
 
 }
