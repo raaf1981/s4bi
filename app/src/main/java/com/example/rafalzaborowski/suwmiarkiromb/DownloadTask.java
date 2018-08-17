@@ -23,8 +23,8 @@ public class DownloadTask {
     private String ADRESTEST = "192.168.1.30", BAZATEST = "miarki", ADRESMAIN = "192.168.1.33:81", BAZAMAIN = "qcontrol", ADRESPROD = "10.12.3.44:81";
     private static String userName = "admin";
     private static String passw = "RSZx9Hqz8B";
-    private  String adres = ADRESTEST;
-    private  String baza = BAZATEST;
+    private  String adres = ADRESPROD;
+    private  String baza = BAZAMAIN;
     private static final String TAG = "Download Task";
     private Context context;
     private Context context2;

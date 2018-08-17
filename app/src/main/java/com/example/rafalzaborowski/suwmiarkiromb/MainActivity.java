@@ -71,7 +71,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Main Activity", MIEJSCE = "Pila";
-    private static final long MILLISMAIN = 10000;
+    private static final long MILLISMAIN = 1200000;
     public static String[][] strOfInd;
     public static int choosenInd;
     InputStreamReader indeksy, odpowiedz;
@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(spinnerArrayAdapter);
         spinner.setPrompt("Miejsce pomiaru");
         preferences = getSharedPreferences("myPrefs", Activity.MODE_PRIVATE);
-        int getprefspinner = preferences.getInt("miejsce", 4);
+        int getprefspinner = preferences.getInt("miejsce", 0);
         spinner.setSelection(getprefspinner);
         spinner.setEnabled(false);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -709,7 +709,8 @@ public class MainActivity extends AppCompatActivity {
     public void stopclick(View v) {
         TextView loginTv = (TextView) findViewById(R.id.textView6);
         if(loginTv.getText().toString().contains("KNT")){
-            showDialogCustYN("Zakończyć kontrolę i wylogować " + loginTv.getText().toString() + "?", 6);
+            //showDialogCustYN("Zakończyć kontrolę i wylogować " + loginTv.getText().toString() + "?", 6);
+            showDialogCustYN("Zakończyć kontrolę i zatrzymać proces?", 1);
         }else{
             if(logged && millis==0 && trybPomiaru==0 && liczSesja>0){
                 showDialogCust("Uwaga", "Aby zakończyć proces należy wykonać wszystkie pomiary.");

@@ -32,8 +32,8 @@ public class HttpHandler {
     private static final int HTTPTIMEOUT = 3000;
     private static String userName = "admin";
     private static String passw = "RSZx9Hqz8B";
-    private static String adres = ADRESTEST;
-    private static String baza = BAZATEST;
+    private static String adres = ADRESPROD;
+    private static String baza = BAZAMAIN;
     private static String urlConGetIndexes = "http://" + adres + "/" + baza + "/index.php/api/rest/indeks/";
     private static String urlConPostNewIndex = "http://" + adres + "/" + baza + "/index.php/api/rest/pomiar";
     private static String urlConPostLogin = "http://" + adres + "/" + baza + "/index.php/api/rest/login";
