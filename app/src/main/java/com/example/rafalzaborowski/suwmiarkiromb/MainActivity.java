@@ -71,7 +71,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Main Activity", MIEJSCE = "Pila";
-    private static final long MILLISMAIN = 1200000;
+    private static final long MILLISMAIN = 1000000;
     public static String[][] strOfInd;
     public static int choosenInd;
     InputStreamReader indeksy, odpowiedz;
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     JSONObject jObj;
     TableLayout tabLay1;
     Date currentDate;
-    Date dataprocesu, dataprocesuBackup;
+    Date dataprocesu, dataprocesuBackup, dataStartProcesu, dataStartPomiaru, dataBackedUp1 = new Date(), dataBackedUp30 = new Date(),dataBackedUp34 = new Date(),dataBackedUp36 = new Date();
     IntentFilter filter = new IntentFilter();
     String targetPdf = "storage/emulated/0/downloadedPdf/index.pdf";
     ImageView pdfView;
@@ -100,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     CharSequence[] values = {"Zwykły", "Krytyczny", "Kosz", "Awaryjny"};
     private int trybPomiaru = -1, savedTryb = -1;
-    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = false, kalibEnd = false;
+    private boolean elemOk = true, started = false, firstmeasure = true, lastmeasure = false, logged = false, kalibEnd = false, firstPom = true;
     public static boolean indexchoosen = false, stopProc = false, comm = false;
     FileNotFoundException exception1 = null;
     public static long millis = -1;
     private UsbService usbService;
     private MyHandler mHandler;
-    public static String prevLogin="";
+    public static String prevLogin = "";
     private SharedPreferences preferences;
 
     @Override
@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction("akcja13");
         filter.addAction("akcja14");
         filter.addAction("akcja15");
+        filter.addAction("akcja16");
         registerReceiver(breceive, filter);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -211,9 +212,9 @@ public class MainActivity extends AppCompatActivity {
                         currentDate = new Date();
                         switch (trybPomiaru) {
                             case -1: //nieoznaczony
-                                if(!logged){
+                                if (!logged) {
                                     showDialogCust("Błąd", "Aby wykonać pomiary należy się zalogować");
-                                }else{
+                                } else {
                                     showDialogCust("Błąd", "Rozpocznij proces naciskając przycisk START PROCES.");
                                 }
                                 break;
@@ -229,10 +230,12 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 TextView tvpr = (TextView) findViewById(R.id.tvpoz);
                                 if (Integer.parseInt(tvpr.getText().toString()) == ((Integer.parseInt(strOfInd[choosenInd][6]) * 10))) {
+
                                     dataprocesu = new Date();
                                     tabLay1 = (TableLayout) findViewById(R.id.tabLay);
                                     tabLay1.removeAllViews();
-                                    licznikPomiarowGlowny=1;
+                                    licznikPomiarowGlowny = 1;
+
                                 }
                                 if (logged && started && millis > 0) {
                                     showDialogCust("Uwaga", "Nie można wykonać pomiaru przed czasem.");
@@ -243,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
                                         textView2.setText(editText.getText());
                                         editText.setText("");
                                         Double.parseDouble(pomiarAktualny);
+                                        checkOverSize();
                                         checkMeasure();
                                         if (pomiarOk) {
                                             textView2.setTextColor(Color.parseColor("#55bb55"));
@@ -253,6 +257,9 @@ public class MainActivity extends AppCompatActivity {
                                         zapiszWynik();
                                     } catch (NumberFormatException e) {
                                         showDialogCust("Błąd", "Błędny pomiar!");
+                                    }catch (OverSizeException e){
+                                        showDialogCustYN("Prawdopodobny błąd pomiarowy.\nCzy na pewno dodać pomiar?.",10);
+                                        textView2.setTextColor(Color.RED);
                                     }
                                     editText.requestFocus();
                                 }
@@ -273,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                                     textView2.setText(editText.getText());
                                     editText.setText("");
                                     Double.parseDouble(pomiarAktualny);
+                                    checkOverSize();
                                     checkMeasure();
                                     if (pomiarOk) {
                                         textView2.setTextColor(Color.parseColor("#55bb55"));
@@ -283,6 +291,9 @@ public class MainActivity extends AppCompatActivity {
                                     zapiszWynik();
                                 } catch (NumberFormatException e) {
                                     showDialogCust("Błąd", "Błędny pomiar");
+                                }catch (OverSizeException e){
+                                    showDialogCustYN("Prawdopodobny błąd pomiarowy.\nCzy na pewno dodać pomiar?.",10);
+                                    textView2.setTextColor(Color.RED);
                                 }
                                 editText.requestFocus();
                                 break;
@@ -295,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
                                     Double.parseDouble(pomiarAktualny);
                                     textView2.setText(editText.getText());
                                     editText.setText("");
+                                    checkOverSize();
                                     checkMeasure();
                                     if (pomiarOk) {
                                         textView2.setTextColor(Color.parseColor("#55bb55"));
@@ -306,6 +318,9 @@ public class MainActivity extends AppCompatActivity {
                                     zapiszWynik();
                                 } catch (NumberFormatException e) {
                                     showDialogCust("Błąd", "Błędny pomiar");
+                                } catch (OverSizeException e){
+                                    showDialogCustYN("Prawdopodobny błąd pomiarowy.\nCzy na pewno dodać pomiar?.",10);
+                                    textView2.setTextColor(Color.RED);
                                 }
                                 break;
                             case 7:
@@ -355,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 SharedPreferences.Editor preferencesEditor = preferences.edit();
                 int spinnerSelect = position;
-                preferencesEditor.putInt ("miejsce", spinnerSelect);
+                preferencesEditor.putInt("miejsce", spinnerSelect);
                 preferencesEditor.commit();
             }
 
@@ -598,6 +613,52 @@ public class MainActivity extends AppCompatActivity {
         double pomiar;
 
 
+        if (strOfInd[choosenInd][3] != "null") {
+            wymiar = Double.parseDouble(strOfInd[choosenInd][3]);
+        } else {
+            wymiar = 0.0;
+        }
+
+        if (strOfInd[choosenInd][4] != "null") {
+            tolp = Double.parseDouble(strOfInd[choosenInd][4]);
+        } else {
+            tolp = 0.0;
+        }
+
+        if (strOfInd[choosenInd][5] != "null") {
+            tolm = Double.parseDouble(strOfInd[choosenInd][5]);
+        } else {
+            tolm = 0.0;
+        }
+
+        if (pomiarAktualny != null) {
+            pomiar = Double.parseDouble(pomiarAktualny);
+        } else {
+            pomiar = 0.0;
+        }
+
+        Double wymminus = BigDecimal.valueOf(new Double(wymiar - tolm))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+        Double wymplus = BigDecimal.valueOf(new Double(wymiar + tolp))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        if ((pomiar >= wymminus) && (pomiar <= wymplus)) {
+            pomiarOk = true;
+        } else {
+            pomiarOk = false;
+        }
+
+    }
+
+    private  void checkOverSize() throws OverSizeException{
+        double wymiar;
+        double tolp;
+        double tolm;
+        double pomiar;
+
+
 
         if (strOfInd[choosenInd][3] != "null") {
             wymiar = Double.parseDouble(strOfInd[choosenInd][3]);
@@ -623,19 +684,27 @@ public class MainActivity extends AppCompatActivity {
             pomiar = 0.0;
         }
 
-        Double wymminus = BigDecimal.valueOf(new Double(wymiar-tolm))
+        Double wymminus = BigDecimal.valueOf(new Double(wymiar - tolm))
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
-        Double wymplus = BigDecimal.valueOf(new Double(wymiar+tolp))
+        Double wymplus = BigDecimal.valueOf(new Double(wymiar + tolp))
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
 
-        if ((pomiar >= wymminus) && (pomiar <= wymplus)) {
-            pomiarOk = true;
-        } else {
-            pomiarOk = false;
+        Double wymiar50 = BigDecimal.valueOf(new Double(wymiar/2))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        Double wymiar50up = BigDecimal.valueOf(new Double(wymiar+wymiar50))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+        Double wymiar50down = BigDecimal.valueOf(new Double(wymiar-wymiar50))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        if ((pomiar>wymiar50up) || (pomiar < wymiar50down)) {
+            throw new OverSizeException();
         }
-
     }
 
     private String prepNewIndPost(String pomiarAkt) {
@@ -652,7 +721,54 @@ public class MainActivity extends AppCompatActivity {
         } else if (trybPomiaru == 6) {
             licznikPomiarowTmpX = licznikPomiarowTmp1Kont;
         }
-        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmpX) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\""+maszyna+"\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\",\"tryb\":\"" + tp + "\"}";
+        String postStr = "{\"ididx\":\"" + strOfInd[choosenInd][0] + "\",\"idelem\":\"" + String.valueOf(licznikPomiarowTmpX) + "\", \"wymiar\":\"" + pomiarAkt + "\", \"operator\":\"" + tvloggedp.getText().toString() + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentDate) + "\", \"maszyna\":\"" + maszyna + "\",\"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataprocesu) + "\",\"tryb\":\"" + tp + "\"}";
+        return postStr;
+    }
+
+    private String prepNewEventPost(String typ) {
+        Spinner spin = (Spinner) findViewById(R.id.spinner);
+        String tp = String.valueOf(trybPomiaru);
+        String maszyna = spin.getSelectedItem().toString();
+        String postStr = "";
+        switch (typ) {
+            case "1": //start proces
+                dataBackedUp1 = new Date();
+                postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp1) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp1) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"-1\"}";
+                break;
+            case "2": //stop proces
+                postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp1) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"-1\"}";
+                break;
+            case "3": //start pomiar
+                switch(trybPomiaru){
+                    case 0:
+                        dataBackedUp30 = new Date();
+                        postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp30) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp30) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"" + tp + "\"}";
+                        break;
+                    case 4:
+                        dataBackedUp34 = new Date();
+                        postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp34) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp34) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"" + tp + "\"}";
+                        break;
+                    case 6:
+                        dataBackedUp36 = new Date();
+                        postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp36) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp36) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"" + tp + "\"}";
+                        break;
+                }
+
+                break;
+            case "4": //stop pomiar
+                switch(trybPomiaru){
+                    case 0:
+                        postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp30) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"" + tp + "\"}";
+                        break;
+                    case 4:
+                        postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp34) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"" + tp + "\"}";
+                        break;
+                    case 6:
+                        postStr = "{\"maszyna\":\"" + maszyna + "\",\"indeks\":\"" + strOfInd[choosenInd][0] + "\", \"data\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "\", \"dataprocesu\":\"" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dataBackedUp36) + "\", \"typ\":\"" + typ + "\", \"tryb\":\"" + tp + "\"}";
+                        break;
+                }
+                break;
+        }
         return postStr;
     }
 
@@ -680,6 +796,8 @@ public class MainActivity extends AppCompatActivity {
             } else if (indexchoosen && started) {
                 customToast("Proces został już rozpoczęty");
             } else {
+                DialogFragment newFragment = new Order();
+                newFragment.show(getSupportFragmentManager(), "order");
                 if (trybPomiaru != 4) {
                     ustawTryb(4);
                 }
@@ -693,10 +811,10 @@ public class MainActivity extends AppCompatActivity {
                 licznikPomiarowTmp1 = 1;
                 licznikPomiarowTmp1Kal = 1;
                 licznikPomiarowTmp1Kont = 1;
-
                 started = true;
                 btnStop.setVisibility(View.VISIBLE);
                 btnStart.setVisibility(View.INVISIBLE);
+                new EventSaver(this, prepNewEventPost("1"));
             }
 
             //cdt.cancel();
@@ -708,13 +826,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void stopclick(View v) {
         TextView loginTv = (TextView) findViewById(R.id.textView6);
-        if(loginTv.getText().toString().contains("KNT")){
+        if (loginTv.getText().toString().contains("KNT")) {
             //showDialogCustYN("Zakończyć kontrolę i wylogować " + loginTv.getText().toString() + "?", 6);
             showDialogCustYN("Zakończyć kontrolę i zatrzymać proces?", 1);
-        }else{
-            if(logged && millis==0 && trybPomiaru==0 && liczSesja>0){
+        } else {
+            if (logged && millis == 0 && trybPomiaru == 0 && liczSesja > 0) {
                 showDialogCust("Uwaga", "Aby zakończyć proces należy wykonać wszystkie pomiary.");
-            }else{
+            } else {
                 stopProces("auto");
             }
 
@@ -768,6 +886,7 @@ public class MainActivity extends AppCompatActivity {
                     case 4:
                         liczProbKalib = 1;
                         if (started) {
+                            new EventSaver(this, prepNewEventPost("4"));
                             TextView tvloggedp = (TextView) findViewById(R.id.textView6);
                             Button btnlog = (Button) findViewById(R.id.zalogbtn);
                             Button btnwylog = (Button) findViewById(R.id.wylogbtn);
@@ -784,12 +903,12 @@ public class MainActivity extends AppCompatActivity {
                     case 5:
                         break;
                     case 6:
-                        dataprocesu=dataprocesuBackup;
+                        dataprocesu = dataprocesuBackup;
                         liczProbKont = 1;
                         trybText.clearAnimation();
                         trybText.setTextColor(Color.WHITE);
                         btnCtrl.setVisibility(View.GONE);
-                        if(millis>0) {
+                        if (millis > 0) {
                             cdt = new CountDown(millis, 1000, this);
                             cdt.start();
                         }
@@ -897,7 +1016,7 @@ public class MainActivity extends AppCompatActivity {
                     case 5:
                         break;
                     case 6:
-                        dataprocesu=dataprocesuBackup;
+                        dataprocesu = dataprocesuBackup;
                         liczProbKont = 1;
                         trybText.clearAnimation();
                         trybText.setTextColor(Color.WHITE);
@@ -953,8 +1072,9 @@ public class MainActivity extends AppCompatActivity {
                         tvblink.clearAnimation();
                         tvblink.setVisibility(View.INVISIBLE);
                         cdt.cancel();
-                        dataprocesuBackup=dataprocesu;
+                        dataprocesuBackup = dataprocesu;
                         dataprocesu = new Date();
+                        firstPom = true;
                         break;
                     case 1:
                         break;
@@ -963,13 +1083,13 @@ public class MainActivity extends AppCompatActivity {
                     case 3:
                         break;
                     case 4:
-                        dataprocesuBackup=dataprocesu;
+                        dataprocesuBackup = dataprocesu;
                         dataprocesu = new Date();
+                        firstPom = true;
                         break;
                     default:
                         break;
                 }
-
                 spinner.setEnabled(true);
                 trybPomiaru = 6;
                 blinkingControl();
@@ -991,7 +1111,7 @@ public class MainActivity extends AppCompatActivity {
                     case 3:
                         break;
                     case 4:
-                        showDialogCust("Uwaga","Kalibracja niepoprawna.\nZatrzymaj proces.");
+                        showDialogCust("Uwaga", "Kalibracja niepoprawna.\nZatrzymaj proces.");
                         blinkingAlertStop();
                         edittext.setEnabled(false);
                         break;
@@ -1179,9 +1299,9 @@ public class MainActivity extends AppCompatActivity {
                             licznikPomiarowTmp1Kont = 1;
                             trybKalibLicz = 0;
                             trybKalibLiczPom = 0;
-                            liczSesja=0;
-                            trybNormalLiczPom=0;
-                            trybNormalLicz=0;
+                            liczSesja = 0;
+                            trybNormalLiczPom = 0;
+                            trybNormalLicz = 0;
                             started = false;
                         } else if (action == 3) {
                             startclick(btnStart);
@@ -1213,9 +1333,13 @@ public class MainActivity extends AppCompatActivity {
                             btnwylog.setVisibility(View.INVISIBLE);
 
                         } else if (action == 5) {
-                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false,"");
+                            zaloguj(textAlert.substring(textAlert.indexOf("KNT"), textAlert.indexOf("KNT") + 6), false, "");
                             registerReceiver(breceive, filter);
                         } else if (action == 6) {
+                            if (!firstPom) {
+                                new EventSaver(prepNewEventPost("4"));
+                                firstPom = true;
+                            }
                             Button btnlog = (Button) findViewById(R.id.zalogbtn);
                             Button btnwylog = (Button) findViewById(R.id.wylogbtn);
                             if (!savedLogin.equals("----")) {
@@ -1242,11 +1366,20 @@ public class MainActivity extends AppCompatActivity {
                             btnlog.setVisibility(View.VISIBLE);
                             btnwylog.setVisibility(View.INVISIBLE);
                         } else if (action == 8) {
-                            zaloguj(textAlert.substring(textAlert.lastIndexOf("PRC"), textAlert.lastIndexOf("PRC") + 6), false,"");
+                            zaloguj(textAlert.substring(textAlert.lastIndexOf("PRC"), textAlert.lastIndexOf("PRC") + 6), false, "");
                             registerReceiver(breceive, filter);
                         } else if (action == 9) {
-                            zaloguj(textAlert.substring(textAlert.lastIndexOf("KNT"), textAlert.lastIndexOf("KNT") + 6), false,"");
+                            zaloguj(textAlert.substring(textAlert.lastIndexOf("KNT"), textAlert.lastIndexOf("KNT") + 6), false, "");
                             registerReceiver(breceive, filter);
+                        } else if (action == 10) {
+                            checkMeasure();
+                            if (pomiarOk) {
+                                textView2.setTextColor(Color.parseColor("#55bb55"));
+                            } else {
+                                textView2.setTextColor(Color.RED);
+                            }
+                            newIndexPost = prepNewIndPost(textView2.getText().toString());
+                            zapiszWynik();
                         }
                     }
                 })
@@ -1317,7 +1450,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void zaloguj(String tagNfc, boolean comm2, String pin) {
         comm = comm2;
-        new LoginTask(tagNfc, this,pin);
+        new LoginTask(tagNfc, this, pin);
 
     }
 
@@ -1526,6 +1659,7 @@ public class MainActivity extends AppCompatActivity {
         public static final String akcja13 = "akcja13";
         public static final String akcja14 = "akcja14";
         public static final String akcja15 = "akcja15";
+        public static final String akcja16 = "akcja16";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1586,6 +1720,7 @@ public class MainActivity extends AppCompatActivity {
                     progressDialog.show();
 
                 } else if (intent.getAction().equals("akcja4")) {
+                    TextView tvpr = (TextView) findViewById(R.id.tvpoz);
                     Integer resp = intent.getIntExtra("respCode", 0);
                     progressDialog.dismiss();
                     int iloscPunktow = Integer.parseInt(strOfInd[choosenInd][6]);
@@ -1593,9 +1728,13 @@ public class MainActivity extends AppCompatActivity {
                         EditText editText = (EditText) findViewById(R.id.editText1);
                         TextView textView2 = (TextView) findViewById(R.id.pomiartv);
                         ScrollView svx = (ScrollView) findViewById(R.id.sv1);
+                        if (trybPomiaru == 0 && Integer.parseInt(tvpr.getText().toString()) == ((Integer.parseInt(strOfInd[choosenInd][6]) * 10))) {
+                            new EventSaver(prepNewEventPost("3"));
+                        }
                         countDownProb();
                         newRowMeasure = prepareRow();
                         addTabRow(newRowMeasure);
+
 
                         switch (trybPomiaru) {
                             case -1: //nieoznaczony
@@ -1611,6 +1750,7 @@ public class MainActivity extends AppCompatActivity {
                                         //customToast("usb data:  "+data);
                                     }
                                 }
+
                                 trybNormalLiczPom++;
                                 if (pomiarOk) {
                                     if (trybNormalLiczPom == iloscPunktow && !elemOk) {
@@ -1650,6 +1790,9 @@ public class MainActivity extends AppCompatActivity {
                             case 3:
                                 break;
                             case 4:
+                                if (trybKalibLiczMain == 0) {
+                                    new EventSaver(prepNewEventPost("3"));
+                                }
                                 trybKalibLiczMain++;
                                 if (trybKalibLiczPom == 0) {
                                     elemOk = true;
@@ -1684,6 +1827,10 @@ public class MainActivity extends AppCompatActivity {
                             case 5:
                                 break;
                             case 6:
+                                if (firstPom) {
+                                    new EventSaver(prepNewEventPost("3"));
+                                    firstPom = false;
+                                }
                                 editText.requestFocus();
                                 break;
                             default:
@@ -1694,11 +1841,12 @@ public class MainActivity extends AppCompatActivity {
                         if (kalibEnd) {
                             ustawTryb(0);
                         }
-                        if(trybKalibLiczMain==(50*iloscPunktow)&&!kalibEnd){
+                        if (trybKalibLiczMain == (50 * iloscPunktow) && !kalibEnd) {
+                            new EventSaver(prepNewEventPost("4"));
                             ustawTryb(7);
-                            stopProc=true;
-                        }else{
-                            kalibEnd=false;
+                            stopProc = true;
+                        } else {
+                            kalibEnd = false;
                         }
                         editText.requestFocus();
                         svx.postDelayed(new Runnable() {
@@ -1732,16 +1880,16 @@ public class MainActivity extends AppCompatActivity {
                     String newLog = intent.getStringExtra("nfcTag");
                     //tvLogged.setText(intent.getStringExtra("nfcTag"));
                     System.out.println(newLog);
-                    if(!newLog.equals("uberadmin")) {
+                    if (!newLog.equals("uberadmin")) {
                         if (!currentLog.equals(newLog)) {
                             if (currentLog.equals("----")) {
                                 if (!newLog.contains("KNT")) {
-                                    zaloguj(newLog, true,"");
+                                    zaloguj(newLog, true, "");
                                 } else if (newLog.contains("KNT") && !started) {
                                     unregisterReceiver(breceive);
                                     showDialogCust("Uwaga", "Nie rozpoczęto jeszcze procesu.\nPrzejście w tryb kontroli niemożliwe.", 1);
                                 } else if (newLog.contains("KNT") && started) {
-                                    zaloguj(newLog, true,"");
+                                    zaloguj(newLog, true, "");
                                 }
                             } else {
                                 if (currentLog.contains("KNT")) {
@@ -1772,16 +1920,16 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             customToast("Jesteś już zalogowany");
                         }
-                    }else{
+                    } else {
                         launchApp("com.sand.airdroid");
                     }
 
                 } else if (intent.getAction().equals("akcja7")) {
                     blinkingAlert();
-                    try{
+                    try {
                         cdt.cancel();
 
-                    }catch(Exception e){
+                    } catch (Exception e) {
 
                     }
 
@@ -1804,7 +1952,7 @@ public class MainActivity extends AppCompatActivity {
                     if (res == 0) {
                         Button btnlog = (Button) findViewById(R.id.zalogbtn);
                         Button btnwylog = (Button) findViewById(R.id.wylogbtn);
-                        prevLogin=tag;
+                        prevLogin = tag;
                         if (tag.contains("KNT")) {
                             tvLogged.setText(tag);
                             if (comm) {
@@ -1881,7 +2029,10 @@ public class MainActivity extends AppCompatActivity {
                     SimpleDateFormat mdformat = new SimpleDateFormat("dd / MM / yyyy ");
                     datetv.setText("Data:   " + mdformat.format(calendar.getTime()));
                 } else if (intent.getAction().equals("akcja15")) {
-                    zaloguj(intent.getStringExtra("login"),true,intent.getStringExtra("pin"));
+                    zaloguj(intent.getStringExtra("login"), true, intent.getStringExtra("pin"));
+                } else if (intent.getAction().equals("akcja16")) {
+                    //zaloguj(intent.getStringExtra("login"), true, intent.getStringExtra("pin"));
+                    //TODO
                 }
             }
         }
@@ -1961,22 +2112,24 @@ public class MainActivity extends AppCompatActivity {
     private void koniecpomiarow() {
         final TextView tvloggedp = (TextView) findViewById(R.id.textView6);
         if (stopProc) {
+            new EventSaver(this, prepNewEventPost("4"));
             EditText editText = (EditText) findViewById(R.id.editText1);
             liczSesja = 0;
-            showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary. \nWykryto błędne elementy w ilości: "+trybNormalLicz+"\nZatrzymaj proces!");
+            showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary. \nWykryto błędne elementy w ilości: " + trybNormalLicz + "\nZatrzymaj proces!");
             editText.setText("");
             TextView tvpr = (TextView) findViewById(R.id.tvpoz);
             tvpr.setText(String.valueOf((Integer.parseInt(strOfInd[choosenInd][6]) * 10)));
-            trybNormalLicz=0;
+            trybNormalLicz = 0;
             blinkingAlertStop();
             editText.setEnabled(false);
         } else {
+            new EventSaver(this, prepNewEventPost("4"));
             Button btnlog = (Button) findViewById(R.id.zalogbtn);
             Button btnwylog = (Button) findViewById(R.id.wylogbtn);
             EditText editText = (EditText) findViewById(R.id.editText1);
             liczSesja = 0;
-            trybNormalLicz=0;
-            trybNormalLiczPom=0;
+            trybNormalLicz = 0;
+            trybNormalLiczPom = 0;
             showDialogCust("Uwaga", "Wykonałeś wszystkie pomiary.");
             editText.setText("");
             TextView tvpr = (TextView) findViewById(R.id.tvpoz);
@@ -1993,7 +2146,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopProces(String am) {
-        TextView tvpozost = (TextView) findViewById(R.id.tvpoz);
+        TextView tvpozost = findViewById(R.id.tvpoz);
         Button btnStop = (Button) findViewById(R.id.stopprocbtn);
         Button btnStart = (Button) findViewById(R.id.startprocbtn);
         TextView indtv = (TextView) findViewById(R.id.indextv);
@@ -2071,6 +2224,7 @@ public class MainActivity extends AppCompatActivity {
                 btnStop.setVisibility(View.INVISIBLE);
                 tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
                 edittext.setEnabled(true);
+                new EventSaver(this, prepNewEventPost("2"));
             } else {
                 if (am.equals("auto")) {
                     if (tvblink.getVisibility() == View.VISIBLE) {
@@ -2127,6 +2281,7 @@ public class MainActivity extends AppCompatActivity {
                             btnStop.setVisibility(View.INVISIBLE);
                             stopProc = false;
                             edittext.setEnabled(true);
+                            new EventSaver(this, prepNewEventPost("2"));
                         } else {
                             showDialogCustYN("Zakończyc proces dla indeksu " + indtv.getText().toString() + "?", 1);
                         }
@@ -2135,6 +2290,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     edittext.requestFocus();
                     //new BlinkingText(this);
+
 
                 } else if (am.equals("manual")) {
                     if (tvblink.getVisibility() == View.VISIBLE) {
@@ -2184,6 +2340,7 @@ public class MainActivity extends AppCompatActivity {
                     btnStop.setVisibility(View.INVISIBLE);
                     tvpozost.setText(String.valueOf(Integer.parseInt(strOfInd[choosenInd][6]) * 10));
                     edittext.setEnabled(true);
+                    new EventSaver(this, prepNewEventPost("2"));
                 }
             }
         } else {
@@ -2191,6 +2348,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 
     //obsluga USB
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
@@ -2253,6 +2411,7 @@ public class MainActivity extends AppCompatActivity {
             usbService = null;
         }
     };
+
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -2276,13 +2435,21 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void scheduleRun(){
+    private void scheduleRun() {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setAction("rafal.activebreciver.CUSTOM_INTENT");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
+    }
+
+    public class OverSizeException extends Exception {
+
+        public OverSizeException() {
+            super("Over sized");
+        }
+
     }
 
 }

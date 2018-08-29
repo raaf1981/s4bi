@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
-INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
-INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
-INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
+INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
+INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
+INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
 MERGED from [com.android.support:design:26.0.0] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/design-26.0.0.aar/7b3195cfe820638e0da22ba74e1d2477/AndroidManifest.xml:17:1-31:12
 MERGED from [es.voghdev.pdfviewpager:library:1.0.4] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/library-1.0.4.aar/8c389910160b37d85833fb305a25c3ba/AndroidManifest.xml:2:1-18:12
 MERGED from [com.android.support:appcompat-v7:26.0.0] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/e05069a8b451debd6d0366a57c746329/AndroidManifest.xml:17:1-31:12
@@ -21,20 +21,20 @@ MERGED from [com.android.support:support-media-compat:26.0.0] /home/rafalzaborow
 MERGED from [com.android.support:support-core-utils:26.0.0] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/support-core-utils-26.0.0.aar/c368f112883b7063121c04fd213376f2/AndroidManifest.xml:17:1-31:12
 MERGED from [com.android.support:support-compat:26.0.0] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/support-compat-26.0.0.aar/fd134f11a00be2b44928ca015550fc98/AndroidManifest.xml:17:1-31:12
 MERGED from [com.android.support:multidex:1.0.1] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/multidex-1.0.1.aar/a3d914e5eebcfff4b4cbab25bf12cbb3/AndroidManifest.xml:16:1-19:12
-INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
-INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
-INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
+INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
+INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
 	package
 		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:3:5-56
 		INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml
 		INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
 		INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-60:12
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:1-62:12
 		INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:2:11-69
@@ -73,7 +73,7 @@ ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/sr
 	android:name
 		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:14:19-59
 application
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:16:5-57:19
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:16:5-59:19
 MERGED from [com.android.support:design:26.0.0] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/design-26.0.0.aar/7b3195cfe820638e0da22ba74e1d2477/AndroidManifest.xml:25:5-29:19
 MERGED from [com.android.support:design:26.0.0] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/design-26.0.0.aar/7b3195cfe820638e0da22ba74e1d2477/AndroidManifest.xml:25:5-29:19
 MERGED from [es.voghdev.pdfviewpager:library:1.0.4] /home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/library-1.0.4.aar/8c389910160b37d85833fb305a25c3ba/AndroidManifest.xml:11:5-16:19
@@ -115,13 +115,17 @@ MERGED from [com.android.support:support-compat:26.0.0] /home/rafalzaborowski/.g
 	android:theme
 		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:22:9-40
 activity#com.example.rafalzaborowski.suwmiarkiromb.MainActivity
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:23:9-31:20
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:23:9-33:20
 	android:screenOrientation
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:23:48-85
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:23:117-154
+	android:launchMode
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:23:81-116
+	android:configChanges
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:23:48-80
 	android:name
 		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:23:19-47
-intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.DEFAULT+category:name:android.intent.category.HOME+category:name:android.intent.category.LAUNCHER
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:24:13-30:29
+intent-filter#action:name:android.hardware.usb.action.USB+action:name:android.hardware.usb.action.USB_DEVICE_ATTACHED+action:name:android.intent.action.MAIN+category:name:android.intent.category.DEFAULT+category:name:android.intent.category.HOME+category:name:android.intent.category.LAUNCHER
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:24:13-31:29
 action#android.intent.action.MAIN
 ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:25:17-69
 	android:name
@@ -138,48 +142,56 @@ category#android.intent.category.LAUNCHER
 ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:28:17-77
 	android:name
 		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:28:27-74
+action#android.hardware.usb.action.USB_DEVICE_ATTACHED
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:29:17-90
+	android:name
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:29:25-87
+action#android.hardware.usb.action.USB
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:30:17-74
+	android:name
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:30:25-71
 activity#com.example.rafalzaborowski.suwmiarkiromb.NfcListener
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:32:9-40:20
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:34:9-42:20
 	android:name
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:32:19-46
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:34:19-46
 intent-filter#action:name:android.nfc.action.NDEF_DISCOVERED+category:name:android.intent.category.DEFAULT+data:mimeType:text/plain
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:33:13-39:29
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:35:13-41:29
 action#android.nfc.action.NDEF_DISCOVERED
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:34:17-77
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:36:17-77
 	android:name
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:34:25-74
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:36:25-74
 data
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:38:17-55
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:40:17-55
 	android:mimeType
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:38:23-52
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:40:23-52
 receiver#com.example.rafalzaborowski.suwmiarkiromb.AlarmReceiver
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:41:9-46:20
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:43:9-48:20
 	android:name
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:41:19-47
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:43:19-47
 intent-filter#action:name:rafal.activebreciver.CUSTOM_INTENT
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:42:13-45:29
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:44:13-47:29
 action#rafal.activebreciver.CUSTOM_INTENT
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:43:17-44:26
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:45:17-46:26
 	android:name
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:43:25-74
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:45:25-74
 service#com.example.rafalzaborowski.suwmiarkiromb.UsbService
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:47:9-49:37
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:49:9-51:37
 	android:enabled
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:49:13-35
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:51:13-35
 	android:name
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:48:13-80
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:50:13-80
 receiver#com.example.rafalzaborowski.suwmiarkiromb.StartMyActivityAtBootReceiver
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:50:9-56:20
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:52:9-58:20
 	android:label
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:52:13-57
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:54:13-57
 	android:name
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:51:13-58
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:53:13-58
 intent-filter#action:name:android.intent.action.BOOT_COMPLETED
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:53:13-55:29
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:55:13-57:29
 action#android.intent.action.BOOT_COMPLETED
-ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:54:17-79
+ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:56:17-79
 	android:name
-		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:54:25-76
+		ADDED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml:56:25-76
 uses-sdk
 INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/AndroidManifest.xml

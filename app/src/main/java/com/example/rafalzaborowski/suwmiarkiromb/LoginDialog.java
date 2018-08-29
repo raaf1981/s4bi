@@ -72,6 +72,7 @@ public class LoginDialog extends DialogFragment{
         buttonBack = (ImageButton) mainview.findViewById(R.id.buttonBack);
         TextView tvmustlog = (TextView) mainview.findViewById(R.id.tvlmustlog);
         TextView tvmustpin = (TextView) mainview.findViewById(R.id.tvmustpin);
+
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

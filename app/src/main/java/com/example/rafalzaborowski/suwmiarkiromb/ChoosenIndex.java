@@ -116,7 +116,7 @@ public class ChoosenIndex extends DialogFragment implements AdapterView.OnItemCl
                 button2 = (Button) customView.findViewById(R.id.button2);
                 button3 = (Button) customView.findViewById(R.id.button3);
                 button4 = (Button) customView.findViewById(R.id.button4);
-                button5 = (Button) customView.findViewById(R.id.button6);
+                button5 = (Button) customView.findViewById(R.id.button5);
                 button6 = (Button) customView.findViewById(R.id.button6);
                 button7 = (Button) customView.findViewById(R.id.button7);
                 button8 = (Button) customView.findViewById(R.id.button8);

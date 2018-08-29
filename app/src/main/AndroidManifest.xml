@@ -20,14 +20,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity" android:screenOrientation="landscape">
+        <activity android:name=".MainActivity" android:configChanges="keyboard" android:launchMode="singleInstance" android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
-
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                <action android:name="android.hardware.usb.action.USB" />
             </intent-filter>
+
         </activity>
         <activity android:name=".NfcListener">
             <intent-filter>

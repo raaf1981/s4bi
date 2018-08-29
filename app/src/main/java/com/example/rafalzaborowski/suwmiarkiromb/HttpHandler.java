@@ -32,12 +32,14 @@ public class HttpHandler {
     private static final int HTTPTIMEOUT = 3000;
     private static String userName = "admin";
     private static String passw = "RSZx9Hqz8B";
-    private static String adres = ADRESPROD;
-    private static String baza = BAZAMAIN;
+    private static String adres = ADRESTEST;
+    private static String baza = BAZATEST;
     private static String urlConGetIndexes = "http://" + adres + "/" + baza + "/index.php/api/rest/indeks/";
+    private static String urlConGetOrders = "http://" + adres + "/" + baza + "/index.php/api/rest/zlecenie/";
     private static String urlConPostNewIndex = "http://" + adres + "/" + baza + "/index.php/api/rest/pomiar";
     private static String urlConPostLogin = "http://" + adres + "/" + baza + "/index.php/api/rest/login";
     private static String urlConPostLoginClick = "http://" + adres + "/" + baza + "/index.php/api/rest/login";
+    private static String urlConPostEvent = "http://" + adres + "/" + baza + "/index.php/api/rest/zdarzenie";
     private static int flags = Base64.NO_WRAP | Base64.URL_SAFE;
     private static byte[] upbyte = (userName + ":" + passw).getBytes();
 
@@ -49,8 +51,35 @@ public class HttpHandler {
             myConnection.setConnectTimeout(HTTPTIMEOUT);
             String encoded = Base64.encodeToString(upbyte, flags);
             myConnection.setRequestProperty("Authorization", "Basic " + encoded);
-            System.out.println("respone code = " + myConnection.getResponseCode());
+            System.out.println("doGet response code = " + myConnection.getResponseCode());
             System.out.println("connection string  = " + urlConGetIndexes);
+            if (myConnection.getResponseCode() == 200) {
+                InputStream responseBody = myConnection.getInputStream();
+                InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
+                return responseBodyReader;
+
+            } else {
+                return null;
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static InputStreamReader doGetOrders() {
+
+        try {
+            URL getEndpoint = new URL(urlConGetIndexes);
+            HttpURLConnection myConnection = (HttpURLConnection) getEndpoint.openConnection();
+            myConnection.setConnectTimeout(HTTPTIMEOUT);
+            String encoded = Base64.encodeToString(upbyte, flags);
+            myConnection.setRequestProperty("Authorization", "Basic " + encoded);
+            System.out.println("doGet response code = " + myConnection.getResponseCode());
+            System.out.println("connection string  = " + urlConGetOrders);
             if (myConnection.getResponseCode() == 200) {
                 InputStream responseBody = myConnection.getInputStream();
                 InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
@@ -83,7 +112,7 @@ public class HttpHandler {
             //DataOutputStream os = new DataOutputStream(myConnection.getOutputStream());
             //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
             myConnection.getOutputStream().write(newIndex.getBytes());
-            System.out.println("respone code = " + myConnection.getResponseCode());
+            System.out.println("doPost response code = " + myConnection.getResponseCode());
             System.out.println("connection string  = " + urlConPostNewIndex);
             response = myConnection.getResponseCode();
             return myConnection.getResponseCode();
@@ -112,7 +141,7 @@ public class HttpHandler {
             //DataOutputStream os = new DataOutputStream(myConnection.getOutputStream());
             //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
             myConnection.getOutputStream().write(newLog.getBytes());
-            System.out.println("response code = " + myConnection.getResponseCode());
+            System.out.println("doPostLogin response code = " + myConnection.getResponseCode());
             System.out.println("connection string  = " + urlConPostLogin);
             if (myConnection.getResponseCode() == 200) {
                 InputStream responseBody = myConnection.getInputStream();
@@ -143,7 +172,7 @@ public class HttpHandler {
     public static InputStreamReader doPostLoginClick(String newLog) {
         try {
 
-            URL getEndpoint = new URL(urlConPostLogin);
+            URL getEndpoint = new URL(urlConPostLoginClick);
             HttpURLConnection myConnection = (HttpURLConnection) getEndpoint.openConnection();
             myConnection.setConnectTimeout(HTTPTIMEOUT);
             String encoded = Base64.encodeToString(upbyte, flags);
@@ -153,8 +182,8 @@ public class HttpHandler {
             //DataOutputStream os = new DataOutputStream(myConnection.getOutputStream());
             //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
             myConnection.getOutputStream().write(newLog.getBytes());
-            System.out.println("response code = " + myConnection.getResponseCode());
-            System.out.println("connection string  = " + urlConPostLogin);
+            System.out.println("doPostLoginClick response code = " + myConnection.getResponseCode());
+            System.out.println("connection string  = " + urlConPostLoginClick);
             if (myConnection.getResponseCode() == 200) {
                 InputStream responseBody = myConnection.getInputStream();
                 InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
@@ -180,6 +209,36 @@ public class HttpHandler {
         }
         return null;
 
+
+    }
+
+    public static int doPostEvent(String newEvent) {
+        int response = -1;
+        try {
+
+            URL getEndpoint = new URL(urlConPostEvent);
+            HttpURLConnection myConnection = (HttpURLConnection) getEndpoint.openConnection();
+            myConnection.setConnectTimeout(10000);
+            String encoded = Base64.encodeToString(upbyte, flags);
+            myConnection.setDoOutput(true);
+
+            myConnection.setRequestProperty("Authorization", "Basic " + encoded);
+            //DataOutputStream os = new DataOutputStream(myConnection.getOutputStream());
+            //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+            myConnection.getOutputStream().write(newEvent.getBytes());
+            System.out.println("doPostEvent response code = " + myConnection.getResponseCode());
+            System.out.println("connection string  = " + urlConPostEvent);
+            response = myConnection.getResponseCode();
+            return myConnection.getResponseCode();
+
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return response;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return response;
+        }
 
     }
 

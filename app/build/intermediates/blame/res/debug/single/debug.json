@@ -1856,6 +1856,10 @@
         "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/e05069a8b451debd6d0366a57c746329/res/drawable/abc_btn_check_material.xml"
     },
     {
+        "merged": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/res/merged/debug/layout-large_simple_list2.xml.flat",
+        "source": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/res/layout-large/simple_list2.xml"
+    },
+    {
         "merged": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/res/merged/debug/drawable-xxhdpi-v4_abc_btn_switch_to_on_mtrl_00012.9.png.flat",
         "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/e05069a8b451debd6d0366a57c746329/res/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png"
     },
@@ -1870,6 +1874,10 @@
     {
         "merged": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/res/merged/debug/drawable-xxxhdpi-v4_abc_ic_star_half_black_16dp.png.flat",
         "source": "/home/rafalzaborowski/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.0.0.aar/e05069a8b451debd6d0366a57c746329/res/drawable-xxxhdpi-v4/abc_ic_star_half_black_16dp.png"
+    },
+    {
+        "merged": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/res/merged/debug/layout-large_order_layout.xml.flat",
+        "source": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/src/main/res/layout-large/order_layout.xml"
     },
     {
         "merged": "/home/rafalzaborowski/AndroidStudioProjects/suwmiarkiROMBtest1/app/build/intermediates/res/merged/debug/layout_abc_screen_simple_overlay_action_mode.xml.flat",
